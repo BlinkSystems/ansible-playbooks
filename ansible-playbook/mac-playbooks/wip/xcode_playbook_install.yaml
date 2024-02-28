@@ -1,0 +1,17 @@
+---
+- name: Install Xcode on macOS
+  hosts: "{{ target }}"
+  become: yes
+  tasks:
+    - name: Install Xcode Command Line Tools
+      command: xcode-select --install
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Wait for Xcode Command Line Tools installation to complete
+      async: 1000
+      poll: 0
+      become: no
+      wait_for:
+        path: /usr/include/iconv.h
+        timeout: 5000

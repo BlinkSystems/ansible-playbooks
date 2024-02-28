@@ -1,0 +1,17 @@
+---
+- hosts: "{{ target }}"
+  gather_facts: false
+  tasks:
+  - name: create shortcut
+    copy:
+      dest: "/tmp/blink_central.scpt"
+      content: |
+        tell application "Finder" to open location "smb://blink_central"
+
+  - name: turn .scpt to app
+    command: osacompile -o /Applications/blink_central.app /tmp/blink_central.scpt
+
+  - name: Delete .scpt specified
+    file:
+      path: /tmp/blink_central.scpt
+      state: absent

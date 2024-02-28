@@ -1,0 +1,42 @@
+---
+- name: Check .dmg installer checksum
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars:
+        file_contents: "{{ lookup('file', '/home/eng/border_control/tmvhost_check.txt') }}"
+  tasks:
+    - name: Download the .dmg file
+      get_url:
+        url: "https://download.teamviewer.com/download/TeamViewerHost.dmg"
+        dest: "/tmp/TeamViewerHost.dmg"
+
+    - name: Calculate the checksum of the downloaded file
+      command: "shasum -a 256 '/tmp/TeamviewerHost.dmg'"
+      register: calculated_checksum
+        
+    - name: Compare checksum values
+      assert:
+        that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
+        msg: "Checksums do not match. File may be corrupted."
+  
+    - name: Mount DMG
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/TeamViewerHost" "/tmp/TeamViewerHost.dmg"
+      register: mounted_volume
+
+    - name: Install from installer.app
+      command: "sudo installer -pkg /Volumes/TeamViewerHost/Install\\ TeamViewerHost.app/Contents/Resources/Install\\ TeamViewerHost.pkg -target /"
+      become: yes
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 15
+    
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/TeamViewerHost"
+
+    - name: Delete .dmg specified
+      file:
+        path: "/tmp/TeamViewerHost.dmg"
+        state: absent
+
+

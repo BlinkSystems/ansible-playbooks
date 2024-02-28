@@ -1,0 +1,44 @@
+---
+- name: Check .dmg installer checksum
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars:
+        file_contents: "{{ lookup('file', '/home/eng/border_control/discord_check.txt') }}"
+  tasks:
+    - name: Check if .app exists
+      stat:
+        path: "/Applications/Discord.app"
+      register: file_data
+
+    - name: Change to .app.old if exists
+      command: "mv /Applications/Discord.app /Applications/Discord.old"
+      when: file_data.stat.exists
+
+    - name: Download the .dmg file
+      copy:
+        src: /home/eng/ansible/ansible-playbook/apps/Discord.dmg
+        dest: "/tmp/Discord.dmg"
+
+    - name: Mount DMG
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/Discord" "/tmp/Discord.dmg"
+      register: mounted_volume
+
+    - name: Copy App to Applications
+      command: cp -R "/Volumes/Discord/Discord.app" /Applications/
+
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/Discord"
+
+    - name: Delete .old
+      file:
+        path: "/Applications/Discord.old"
+        state: absent
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Delete .dmg specified
+      file:
+        path: "/tmp/Discord.dmg"
+        state: absent

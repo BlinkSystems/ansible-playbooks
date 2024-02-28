@@ -1,0 +1,28 @@
+---
+- name: Check .dmg installer checksum
+  hosts: "{{ target }}"
+  gather_facts: false
+  tasks:
+    - name: Download the .dmg file
+      copy:
+        src: /home/eng/apps/googlechrome.dmg
+        dest: "/tmp/googlechrome.dmg"
+
+    - name: Mount DMG
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/Google Chrome" "/tmp/googlechrome.dmg"
+      register: mounted_volume
+
+    - name: Copy App to Applications
+      command: cp -R "/Volumes/Google Chrome/Google Chrome.app" /Applications/
+
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/Google Chrome"
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Delete .dmg specified
+      file:
+        path: "/tmp/googlechrome.dmg"
+        state: absent

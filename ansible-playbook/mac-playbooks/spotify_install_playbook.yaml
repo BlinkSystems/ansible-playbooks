@@ -1,0 +1,54 @@
+---
+- name: Check .dmg installer checksum
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars:
+      file_contents: "{{ lookup('file', '/home/eng/border_control/spotify_check.txt') }}"
+      app_name: "Spotify.app"
+      app_zip_url: "https://download.scdn.co/SpotifyInstaller.zip"
+      install_dir: "/Applications"
+  tasks:
+    - name: Download the .zip file
+      get_url:
+        url: "{{ app_zip_url }}"
+        dest: "/tmp/{{ app_name }}.zip"
+
+    - name: Calculate the checksum of the downloaded file
+      command: "shasum -a 256 '/tmp/{{ app_name }}.zip'"
+      register: calculated_checksum
+        
+    - name: Compare checksum values
+      assert:
+        that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
+        msg: "Checksums do not match. File may be corrupted."
+    
+    - name: Unzip the application
+      command: "unzip -o /tmp/{{ app_name }}.zip -d /{{ install_dir }}"
+      args:
+        creates: "{{ install_dir }}/{{ app_name }}"
+
+    - name: Install from installer.app
+      command: "{{ install_dir }}/Install\\ Spotify.app/Contents/MacOS/Install\\ Spotify"
+
+    - name: Ensure the application is installed
+      stat:
+        path: "{{ install_dir }}/{{ app_name }}"
+      register: app_installed
+
+    - name: Display debug information
+      debug:
+        var: app_installed
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Clean up the downloaded .zip file
+      file:
+        path: "/tmp/{{ app_name }}.zip"
+        state: absent
+
+    - name: Clean up the downloaded .zip file from Applications
+      file:
+        path: "/{{ install_dir }}/Install Spotify.app"
+        state: absent

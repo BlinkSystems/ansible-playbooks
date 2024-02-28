@@ -1,0 +1,62 @@
+---
+- name: Check .dmg installer checksum
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars:
+        file_contents: "{{ lookup('file', '/home/eng/border_control/fort_check.txt') }}"
+  tasks:
+    - name: Download the .dmg file
+      ansible.builtin.copy:
+        src: /home/eng/apps/FortiClientVPN.dmg
+        dest: "/tmp/forticlientVPN.dmg"
+
+    - name: Calculate the checksum of the downloaded file
+      command: "shasum -a 512 '/tmp/forticlientVPN.dmg'"
+      register: calculated_checksum
+        
+    - name: Compare checksum values
+      assert:
+        that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
+        msg: "Checksums do not match. File may be corrupted."
+
+    - name: Check if volume is already mounted
+      shell: hdiutil info | grep "/Volumes/FortiClientInstaller"
+      ignore_errors: true
+      register: is_volume_mounted
+
+    - name: Mount DMG if not already mounted
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/FortiClient" "/tmp/forticlientVPN.dmg"
+      when: is_volume_mounted.rc != 0
+  
+    - name: Mount DMG
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/FortiClient" "/tmp/forticlientVPN.dmg"
+      register: mounted_volume
+
+    - name: Debug path existence
+      debug:
+        msg: "Path exists: {{ '/Volumes/FortiClient' | realpath }}"
+
+    # - name: Install from installer.app
+    #   command: "/Volumes/FortiClient/Install.app"
+    #   become: yes
+    #   register: install_result
+
+    - name: Install App
+      command: sudo installer -pkg "/Volumes/FortiClient/Install.mpkg" -target /
+      become: yes
+
+    - name: Debug installation app
+      debug:
+        var: install_result
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 15
+
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/FortiClient"
+
+    - name: Delete .dmg specified
+      file:
+        path: "/tmp/forticlientVPN.dmg"
+        state: absent

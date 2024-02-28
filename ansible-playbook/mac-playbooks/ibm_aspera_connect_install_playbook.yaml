@@ -1,0 +1,29 @@
+---
+- name: Install IBM Aspera Connect 
+  hosts: " {{ target }} "
+  gather_facts: false
+  vars:
+        file_contents: "{{ lookup('file', '/home/eng/border_control/ibm_aspera_check.txt') }}"
+  tasks:
+    - name: Download the .pkg file
+      get_url:
+        url: "https://d3gcli72yxqn2z.cloudfront.net/downloads/connect/latest/bin/ibm-aspera-connect_4.2.8.540_macOS_x86_64.pkg"
+        dest: "/tmp/ibm_aspera.pkg"
+
+    - name: Calculate the checksum of the downloaded file
+      command: "shasum -a 256 '/tmp/ibm_aspera.pkg'"
+      register: calculated_checksum
+        
+    - name: Compare checksum values
+      assert:
+        that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
+        msg: "Checksums do not match. File may be corrupted."
+
+    - name: Install App
+      command: sudo installer -store -pkg /tmp/ibm_aspera.pkg -target /
+      become: yes
+
+    - name: Delete .pkg specified
+      file:
+        path: "/tmp/ibm_aspera.pkg"
+        state: absent

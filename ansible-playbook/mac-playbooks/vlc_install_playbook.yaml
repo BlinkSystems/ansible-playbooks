@@ -1,0 +1,39 @@
+---
+- name: Check .dmg installer checksum
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars:
+        file_contents: "{{ lookup('file', '/home/eng/border_control/vlc_check.txt') }}"
+  tasks:
+    - name: Download the .dmg file
+      get_url:
+        url: "https://get.videolan.org/vlc/3.0.20/macosx/vlc-3.0.20-universal.dmg"
+        dest: "/tmp/VLC.dmg"
+
+    - name: Calculate the checksum of the downloaded file
+      command: "shasum -a 256 '/tmp/VLC.dmg'"
+      register: calculated_checksum
+        
+    - name: Compare checksum values
+      assert:
+        that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
+        msg: "Checksums do not match. File may be corrupted."
+  
+    - name: Mount DMG
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/VLC" "/tmp/VLC.dmg"
+      register: mounted_volume
+
+    - name: Copy App to Applications
+      command: cp -R "/Volumes/VLC/VLC.app" /Applications/
+
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/VLC"
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Delete .dmg specified
+      file:
+        path: "/tmp/VLC.dmg"
+        state: absent

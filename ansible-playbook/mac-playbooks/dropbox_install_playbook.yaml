@@ -1,0 +1,30 @@
+---
+- name: Check .dmg installer checksum
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars:
+        file_contents: "{{ lookup('file', '/home/eng/border_control/dropbox_check.txt') }}"
+  tasks:
+    - name: Download the .dmg file
+      copy:
+        src: /home/eng/apps/DropboxInstaller.dmg
+        dest: "/tmp/Dropbox.dmg"
+
+    - name: Mount DMG
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/Dropbox" "/tmp/Dropbox.dmg"
+      register: mounted_volume
+
+    - name: Copy App to Applications
+      command: cp -R "/Volumes/Dropbox/Dropbox.app" /Applications/
+
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/Dropbox"
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Delete .dmg specified
+      file:
+        path: "/tmp/Dropbox.dmg"
+        state: absent

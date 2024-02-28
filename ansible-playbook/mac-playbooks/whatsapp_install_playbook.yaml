@@ -1,0 +1,39 @@
+---
+- name: Check .dmg installer checksum
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars:
+        file_contents: "{{ lookup('file', '/home/eng/border_control/whatsapp_check.txt') }}"
+  tasks:
+    - name: Download the .dmg file
+      get_url:
+        url: "https://web.whatsapp.com/desktop/mac_native/release/?configuration=Release"
+        dest: "/tmp/whatsapp.dmg"
+
+    - name: Calculate the checksum of the downloaded file
+      command: "shasum -a 256 '/tmp/whatsapp.dmg'"
+      register: calculated_checksum
+        
+    - name: Compare checksum values
+      assert:
+        that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
+        msg: "Checksums do not match. File may be corrupted."
+  
+    - name: Mount DMG
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/WhatsApp Installer" "/tmp/whatsapp.dmg"
+      register: mounted_volume
+
+    - name: Copy App to Applications
+      command: cp -R "/Volumes/WhatsApp Installer/WhatsApp.app" /Applications/
+
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/WhatsApp Installer"
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Delete .dmg specified
+      file:
+        path: "/tmp/whatsapp.dmg"
+        state: absent

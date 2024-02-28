@@ -1,0 +1,43 @@
+---
+- name: Check .dmg installer checksum
+  hosts: "{{ target }}"
+  gather_facts: false
+
+  tasks:
+    - name: Copy DMG Installer
+      ansible.builtin.copy:
+        src: /home/eng/apps/bit_defender.dmg
+        dest: /tmp/bit_defender.dmg
+
+    - name: Check if volume is already mounted
+      shell: hdiutil info | grep "/Volumes/Endpoint for MAC"
+      ignore_errors: true
+      register: is_volume_mounted
+
+    - name: Mount DMG if not already mounted
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/Endpoint for MAC" "/tmp/bit_defender.dmg"
+      when: is_volume_mounted.rc != 0
+
+    - name: Debug path existence
+      debug:
+        msg: "Path exists: {{ '/Volumes/Endpoint for MAC/SetupDownloader.app/Contents/MacOS/' | realpath }}"
+
+    - name: Install from installer.app
+      command: "/Volumes/Endpoint\\ for\\ MAC/SetupDownloader.app/Contents/MacOS/SetupDownloader"
+      become: yes
+
+    - name: Debug file existence
+      debug:
+        msg: "File exists: {{ '/Volumes/Endpoint for MAC/SetupDownloader.app/Contents/MacOS/SetupDownloader' | realpath }}"
+
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/Endpoint for MAC"
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Delete .dmg specified
+      file:
+        path: "/tmp/bit_defender.dmg"
+        state: absent

@@ -1,0 +1,9 @@
+---
+- name: Create a directory if it does not exist
+  hosts: "{{ target }}"
+  tasks:
+  - name: Check if directory exists
+    file:
+      path: "/Volumes/Macintosh\ HD/Users/Shared/tmp"
+      state: directory
+      mode: 0755
