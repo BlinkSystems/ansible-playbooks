@@ -20,7 +20,6 @@
         msg: "Checksums do not match. File may be corrupted."
   
     - name: Mount DMG
-      #command: hdiutil attach ./Downloads/tmp/slack.dmg -nobrowse
       command: hdiutil attach -nobrowse -mountpoint "/Volumes/GoogleDrive" "/tmp/GoogleDrive.dmg"
       register: mounted_volume
 
