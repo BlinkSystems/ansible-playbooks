@@ -16,7 +16,7 @@
 
     - name: Download the .dmg file
       copy:
-        src: /home/eng/ansible/ansible-playbook/apps/Discord.dmg
+        src: /home/eng/apps/Discord.dmg
         dest: "/tmp/Discord.dmg"
 
     - name: Mount DMG
@@ -26,9 +26,6 @@
     - name: Copy App to Applications
       command: cp -R "/Volumes/Discord/Discord.app" /Applications/
 
-    - name: Unmount DMG
-      command: hdiutil detach "/Volumes/Discord"
-
     - name: Delete .old
       file:
         path: "/Applications/Discord.old"
@@ -37,6 +34,9 @@
     - name: Pause to allow installation to complete
       pause:
         seconds: 10
+
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/Discord"
 
     - name: Delete .dmg specified
       file:

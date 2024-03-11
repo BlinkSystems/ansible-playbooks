@@ -35,9 +35,6 @@
     - name: Copy App to Applications
       command: cp -R "/Volumes/Slack/Slack.app" /Applications/
 
-    - name: Unmount DMG
-      command: hdiutil detach "/Volumes/Slack"
-
     - name: Delete .old
       file:
         path: "/Applications/Slack.old"
@@ -46,6 +43,9 @@
     - name: Pause to allow installation to complete
       pause:
         seconds: 10
+        
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/Slack"
 
     - name: Delete .dmg specified
       file:
