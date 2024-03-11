@@ -10,11 +10,6 @@
         src: /home/eng/apps/FortiClientVPN.dmg
         dest: "/tmp/forticlientVPN.dmg"
 
-    - name: Download the automator
-      ansible.builtin.copy:
-        src: ~/ansible/Automator/FortiTray_Allow.workflow
-        dest: "./Desktop/FortiTray_Allow.workflow"
-
     - name: Calculate the checksum of the downloaded file
       command: "shasum -a 512 '/tmp/forticlientVPN.dmg'"
       register: calculated_checksum
@@ -43,10 +38,6 @@
 
     - name: Install App
       command: sudo installer -pkg "/Volumes/FortiClient/Install.mpkg" -target /
-      become: yes
-
-    - name: Run Automator Workflow
-      command: "automator /Desktop/FortiTray_Allow.workflow"
       become: yes
 
     - name: Pause to allow installation to complete
