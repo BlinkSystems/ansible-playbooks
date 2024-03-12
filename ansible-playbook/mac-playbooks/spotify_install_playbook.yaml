@@ -5,16 +5,17 @@
   vars:
       file_contents: "{{ lookup('file', '/home/eng/border_control/spotify_check.txt') }}"
       app_name: "Spotify.app"
+      zip_name: "SpotifyInstaller.zip"
       app_zip_url: "https://download.scdn.co/SpotifyInstaller.zip"
       install_dir: "/Applications"
   tasks:
     - name: Download the .zip file
       get_url:
         url: "{{ app_zip_url }}"
-        dest: "/tmp/{{ app_name }}.zip"
+        dest: "/tmp/{{ zip_name }}"
 
     - name: Calculate the checksum of the downloaded file
-      command: "shasum -a 256 '/tmp/{{ app_name }}.zip'"
+      command: "shasum -a 256 '/tmp/{{ zip_name }}'"
       register: calculated_checksum
         
     - name: Compare checksum values
@@ -23,9 +24,9 @@
         msg: "Checksums do not match. File may be corrupted."
     
     - name: Unzip the application
-      command: "unzip -o /tmp/{{ app_name }}.zip -d /{{ install_dir }}"
-      args:
-        creates: "{{ install_dir }}/{{ app_name }}"
+      command: "unzip -o /tmp/{{ zip_name }} -d /{{ install_dir }}"
+      # args:
+      #   creates: "{{ install_dir }}/{{ app_name }}"
 
     - name: Install from installer.app
       command: "{{ install_dir }}/Install\\ Spotify.app/Contents/MacOS/Install\\ Spotify"
@@ -45,7 +46,7 @@
 
     - name: Clean up the downloaded .zip file
       file:
-        path: "/tmp/{{ app_name }}.zip"
+        path: "/tmp/{{ zip_name }}"
         state: absent
 
     - name: Clean up the downloaded .zip file from Applications

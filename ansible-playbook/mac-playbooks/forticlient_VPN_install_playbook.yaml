@@ -52,9 +52,9 @@
         path: "/tmp/forticlientVPN.dmg"
         state: absent
 
-    - name: Allow FortiTray to add VPN configurations
-      expect:
-        command: "/Applications/FortiClient.app/Contents/Resources/runtime.helper/FortiTray.app/Contents/MacOS/FortiTray" 
-        responses:
-          "Allow": true
-          "Don't Allow": false
+    # - name: Allow FortiTray to add VPN configurations
+    #   expect:
+    #     command: "/Applications/FortiClient.app/Contents/Resources/runtime.helper/FortiTray.app/Contents/MacOS/FortiTray" 
+    #     responses:
+    #       "Allow": true
+    #       "Don't Allow": false

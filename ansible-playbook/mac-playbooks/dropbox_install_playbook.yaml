@@ -16,6 +16,7 @@
 
     - name: Copy App to Applications
       command: cp -R "/Volumes/Dropbox/Dropbox.app" /Applications/
+      become: yes
 
     - name: Unmount DMG
       command: hdiutil detach "/Volumes/Dropbox"
