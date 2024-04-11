@@ -1,9 +1,47 @@
 ---
-- name: Check .dmg installer checksum
-  hosts: "{{ target }}"
+- name: Check .dmg installer checksum and scan for virus
+  hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-        file_contents: "{{ lookup('file', '/home/eng/border_control/discord_check.txt') }}"
+    file_contents: "{{ lookup('file', '/home/eng/border_control/discord_check.txt') }}"
+    download_url: "https://pax.discord.com/api/download?platform=osx"
+    download_path: "/home/eng/apps/Discord.dmg"
+
+  
+  tasks:
+    - name: Download the .dmg file
+      get_url:
+        url: "{{ download_url }}"
+        dest: "{{ download_path }}"
+
+    - name: Calculate the checksum of the downloaded file
+      command: "shasum -a 256 '{{ download_path }}'"
+      register: calculated_checksum
+        
+    - name: Compare checksum values
+      assert:
+        that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
+        msg: "Checksums do not match. File may be corrupted."
+
+    - name: Install ClamAV
+      become: yes
+      package:
+        name: clamav
+        state: present
+
+    - name: Scan .zip file with ClamAV
+      command: clamscan --stdout "{{ download_path }}"
+      register: clamav_result
+      changed_when: false
+
+    - name: Fail if virus found
+      fail:
+        msg: "Virus detected in the downloaded file!"
+      when: "'FOUND' in clamav_result.stdout"
+
+- name: Install Discord
+  hosts: "{{ target }}"
+  gather_facts: false
   tasks:
     - name: Check if .app exists
       stat:

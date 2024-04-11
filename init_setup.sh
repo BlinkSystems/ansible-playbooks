@@ -5,10 +5,10 @@ read -p "Enter username@ip: " varname
 echo "Enter password: "
 read -s password
 
-# Define the path to the .dmg file on the local machine
+# # Define the path to the .dmg file on the local machine
 local_dmg_path="./apps/xcode/Command_Line_Tools_for_Xcode_15.dmg"
 
-# Define the mount point for the .dmg file on the remote machine
+# # Define the mount point for the .dmg file on the remote machine
 remote_mount_point="/Volumes/Command Line Developer Tools"
 
 # Transfer the .dmg file to the remote machine
@@ -30,5 +30,6 @@ ssh "$varname" <<EOF
     # Clean up the temporary .dmg file
     rm "/tmp/cmd_tools.dmg"
 EOF
+
 
 password=""

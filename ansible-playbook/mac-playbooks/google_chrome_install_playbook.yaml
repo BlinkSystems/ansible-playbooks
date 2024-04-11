@@ -1,5 +1,28 @@
 ---
-- name: Check .dmg installer checksum
+- name: ClamAV
+  hosts: localhost  # Run tasks on the Ansible control node
+  gather_facts: false
+  vars:
+    check_file: "/home/eng/apps/googlechrome.dmg"
+  
+  tasks:
+    - name: Install ClamAV
+      become: yes
+      package:
+        name: clamav
+        state: present
+
+    - name: Scan .dmg file with ClamAV
+      command: clamscan --stdout "{{ check_file }}"
+      register: clamav_result
+      changed_when: false
+
+    - name: Fail if virus found
+      fail:
+        msg: "Virus detected in the downloaded file!"
+      when: "'FOUND' in clamav_result.stdout"
+
+- name: Install Google Drive
   hosts: "{{ target }}"
   gather_facts: false
   tasks:

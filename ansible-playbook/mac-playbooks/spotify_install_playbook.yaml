@@ -1,32 +1,61 @@
 ---
-- name: Check .dmg installer checksum
-  hosts: "{{ target }}"
+- name: Check .dmg installer checksum and scan for virus
+  hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-      file_contents: "{{ lookup('file', '/home/eng/border_control/spotify_check.txt') }}"
-      app_name: "Spotify.app"
-      zip_name: "SpotifyInstaller.zip"
-      app_zip_url: "https://download.scdn.co/SpotifyInstaller.zip"
-      install_dir: "/Applications"
+    file_contents: "{{ lookup('file', '/home/eng/border_control/spotify_check.txt') }}"
+    download_url: "https://download.scdn.co/SpotifyInstaller.zip"
+    download_path: "/home/eng/apps/Spotify.zip"
+
   tasks:
     - name: Download the .zip file
       get_url:
-        url: "{{ app_zip_url }}"
-        dest: "/tmp/{{ zip_name }}"
+        url: "{{ download_url }}"
+        dest: "{{ download_path }}"
 
     - name: Calculate the checksum of the downloaded file
-      command: "shasum -a 256 '/tmp/{{ zip_name }}'"
+      command: "shasum -a 256 '{{ download_path }}'"
       register: calculated_checksum
         
     - name: Compare checksum values
       assert:
         that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
         msg: "Checksums do not match. File may be corrupted."
+
+    - name: Install ClamAV
+      become: yes
+      package:
+        name: clamav
+        state: present
+
+    - name: Scan downloaded file with ClamAV
+      command: clamscan --stdout "{{ download_path }}"
+      register: clamav_result
+      changed_when: false
+
+    - name: Fail if virus found
+      fail:
+        msg: "Virus detected in the downloaded file!"
+      when: "'FOUND' in clamav_result.stdout"
+
+- name: Install Spotify
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars:
+      app_name: "Spotify.app"
+      zip_name: "/tmp/Spotify.zip"
+      zip_install_name: "SpotifyInstaller.zip"
+      install_dir: "/Applications"
+  tasks:
+    - name: Transfer the .dmg file to target hosts
+      ansible.builtin.copy:
+        src: "/home/eng/apps/Spotify.zip"
+        dest: "/tmp/Spotify.zip"
     
     - name: Unzip the application
-      command: "unzip -o /tmp/{{ zip_name }} -d /{{ install_dir }}"
-      # args:
-      #   creates: "{{ install_dir }}/{{ app_name }}"
+      command: "unzip -o {{ zip_name }} -d /{{ install_dir }}"
+      args:
+        creates: "{{ install_dir }}/{{ app_name }}"
 
     - name: Install from installer.app
       command: "{{ install_dir }}/Install\\ Spotify.app/Contents/MacOS/Install\\ Spotify"
@@ -46,7 +75,7 @@
 
     - name: Clean up the downloaded .zip file
       file:
-        path: "/tmp/{{ zip_name }}"
+        path: "{{ zip_name }}"
         state: absent
 
     - name: Clean up the downloaded .zip file from Applications

@@ -1,25 +1,52 @@
 ---
-- name: Install IBM Aspera Connect 
-  hosts: " {{ target }} "
+- name: Check .pkg installer checksum and scan for virus
+  hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-        file_contents: "{{ lookup('file', '/home/eng/border_control/ibm_aspera_check.txt') }}"
+    file_contents: "{{ lookup('file', '/home/eng/border_control/ibm_aspera_check.txt') }}"
+    download_url: "https://d3gcli72yxqn2z.cloudfront.net/downloads/connect/latest/bin/ibm-aspera-connect_4.2.8.540_macOS_x86_64.pkg"
+    download_path: "/home/eng/apps/ibm_aspera.dmg"
+
   tasks:
-    - name: Download the .pkg file
+    - name: Download the .dmg file
       get_url:
-        url: "https://d3gcli72yxqn2z.cloudfront.net/downloads/connect/latest/bin/ibm-aspera-connect_4.2.8.540_macOS_x86_64.pkg"
-        dest: "/tmp/ibm_aspera.pkg"
+        url: "{{ download_url }}"
+        dest: "{{ download_path }}"
 
     - name: Calculate the checksum of the downloaded file
-      command: "shasum -a 256 '/tmp/ibm_aspera.pkg'"
+      command: "shasum -a 256 '{{ download_path }}'"
       register: calculated_checksum
         
     - name: Compare checksum values
       assert:
         that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
         msg: "Checksums do not match. File may be corrupted."
+    
+    - name: Install ClamAV
+      become: yes
+      package:
+        name: clamav
+        state: present
 
-    - name: Install App
+    - name: Scan downloaded file with ClamAV
+      command: clamscan --stdout "{{ download_path }}"
+      register: clamav_result
+      changed_when: false
+
+    - name: Fail if virus found
+      fail:
+        msg: "Virus detected in the downloaded file!"
+      when: "'FOUND' in clamav_result.stdout"
+
+- name: Install IBM Aspera Connect
+  hosts: "{{ target }}"
+  tasks:
+    - name: Transfer the .pkg file to target hosts
+      ansible.builtin.copy:
+        src: "/home/eng/apps/ibm_aspera.dmg"
+        dest: "/tmp/ibm_aspera.pkg"
+  
+    - name: Open .pkg
       command: sudo installer -store -pkg /tmp/ibm_aspera.pkg -target /
       become: yes
 

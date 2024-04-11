@@ -1,23 +1,51 @@
 ---
-- name: Check .dmg installer checksum
-  hosts: "{{ target }}"
+- name: Check .dmg installer checksum and scan for virus
+  hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-        file_contents: "{{ lookup('file', '/home/eng/border_control/tmvhost_check.txt') }}"
+    file_contents: "{{ lookup('file', '/home/eng/border_control/tmvhost_check.txt') }}"
+    download_url: "https://download.teamviewer.com/download/TeamViewerHost.dmg"
+    download_path: "/home/eng/apps/TeamViewerHost.dmg"
+
   tasks:
     - name: Download the .dmg file
       get_url:
-        url: "https://download.teamviewer.com/download/TeamViewerHost.dmg"
-        dest: "/tmp/TeamViewerHost.dmg"
+        url: "{{ download_url }}"
+        dest: "{{ download_path }}"
 
     - name: Calculate the checksum of the downloaded file
-      command: "shasum -a 256 '/tmp/TeamviewerHost.dmg'"
+      command: "shasum -a 256 '{{ download_path }}'"
       register: calculated_checksum
         
     - name: Compare checksum values
       assert:
         that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
         msg: "Checksums do not match. File may be corrupted."
+
+    - name: Install ClamAV
+      become: yes
+      package:
+        name: clamav
+        state: present
+
+    - name: Scan downloaded file with ClamAV
+      command: clamscan --stdout "{{ download_path }}"
+      register: clamav_result
+      changed_when: false
+
+    - name: Fail if virus found
+      fail:
+        msg: "Virus detected in the downloaded file!"
+      when: "'FOUND' in clamav_result.stdout"
+
+- name: Install TeamviewerHost
+  hosts: "{{ target }}"
+  gather_facts: false
+  tasks:
+    - name: Transfer the .dmg file to target hosts
+      ansible.builtin.copy:
+        src: "/home/eng/apps/TeamViewerHost.dmg"
+        dest: "/tmp/TeamViewerHost.dmg"
   
     - name: Mount DMG
       command: hdiutil attach -nobrowse -mountpoint "/Volumes/TeamViewerHost" "/tmp/TeamViewerHost.dmg"

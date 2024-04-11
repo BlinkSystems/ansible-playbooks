@@ -3,12 +3,12 @@
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    file_contents: "{{ lookup('file', '/home/eng/border_control/vlc_check.txt') }}"
-    download_url: "https://get.videolan.org/vlc/3.0.20/macosx/vlc-3.0.20-universal.dmg"
-    download_path: "/home/eng/apps/vlc.dmg"
-  
+    file_contents: "{{ lookup('file', '/home/eng/border_control/wacom_check.txt') }}"
+    download_url: "https://cdn.wacom.com/u/productsupport/drivers/mac/professional/WacomTablet_6.4.5-3.dmg"
+    download_path: "/home/eng/apps/wacom.dmg"
+
   tasks:
-    - name: Download the .dmg file
+    - name: Download the .zip file
       get_url:
         url: "{{ download_url }}"
         dest: "{{ download_path }}"
@@ -38,29 +38,31 @@
         msg: "Virus detected in the downloaded file!"
       when: "'FOUND' in clamav_result.stdout"
 
-- name: Install VLC
+- name: Install Wacom
   hosts: "{{ target }}"
+  gather_facts: false
   tasks:
     - name: Transfer the .dmg file to target hosts
       ansible.builtin.copy:
-        src: "/home/eng/apps/vlc.dmg"
-        dest: "/tmp/vlc.dmg"
+        src: "/home/eng/apps/wacom.dmg"
+        dest: "/tmp/wacom.dmg"
   
     - name: Mount DMG
-      command: hdiutil attach -nobrowse -mountpoint "/Volumes/VLC" "/tmp/vlc.dmg"
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/WacomTablet" "/tmp/wacom.dmg"
       register: mounted_volume
 
-    - name: Copy App to Applications
-      command: cp -R "/Volumes/VLC/VLC.app" /Applications/
-
-    - name: Unmount DMG
-      command: hdiutil detach "/Volumes/VLC"
+    - name: Install from installer.pkg
+      command: "sudo installer -pkg /Volumes/WacomTablet/Install\\ Wacom\\ Tablet.pkg -target /"
+      become: yes
 
     - name: Pause to allow installation to complete
       pause:
-        seconds: 10
+        seconds: 15
+    
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/WacomTablet"
 
     - name: Delete .dmg specified
       file:
-        path: "/tmp/VLC.dmg"
+        path: "/tmp/wacom.dmg"
         state: absent

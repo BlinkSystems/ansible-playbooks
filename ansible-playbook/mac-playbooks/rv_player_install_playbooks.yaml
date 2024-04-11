@@ -1,24 +1,51 @@
 ---
-- name: Check .dmg installer checksum
-  hosts: "{{ target }}"
+- name: Check .pkg installer checksum and scan for virus
+  hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-        file_contents: "{{ lookup('file', '/home/eng/border_control/rv_check.txt') }}"
+    file_contents: "{{ lookup('file', '/home/eng/border_control/rv_check.txt') }}"
+    download_url: "https://sg-software.ems.autodesk.com/deploy/rv/Current_Release/MacOS-release.dmg"
+    download_path: "/home/eng/apps/RV.dmg"
+
   tasks:
     - name: Download the .dmg file
       get_url:
-        url: "https://sg-software.ems.autodesk.com/deploy/rv/Current_Release/MacOS-release.dmg"
-        dest: "/tmp/RV.dmg"
+        url: "{{ download_url }}"
+        dest: "{{ download_path }}"
 
     - name: Calculate the checksum of the downloaded file
-      command: "shasum -a 256 '/tmp/RV.dmg'"
+      command: "shasum -a 256 '{{ download_path }}'"
       register: calculated_checksum
         
     - name: Compare checksum values
       assert:
         that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
         msg: "Checksums do not match. File may be corrupted."
+
+    - name: Install ClamAV
+      become: yes
+      package:
+        name: clamav
+        state: present
+
+    - name: Scan downloaded file with ClamAV
+      command: clamscan --stdout "{{ download_path }}"
+      register: clamav_result
+      changed_when: false
+
+    - name: Fail if virus found
+      fail:
+        msg: "Virus detected in the downloaded file!"
+      when: "'FOUND' in clamav_result.stdout" 
   
+- name: Install App
+  hosts: "{{ target }}"
+  tasks:
+    - name: Transfer the .dmg file to target hosts
+      ansible.builtin.copy:
+        src: "/home/eng/apps/RV.dmg"
+        dest: "/tmp/RV.dmg"
+
     - name: Mount DMG
       command: hdiutil attach -nobrowse -mountpoint "/Volumes/RV" "/tmp/RV.dmg"
       register: mounted_volume

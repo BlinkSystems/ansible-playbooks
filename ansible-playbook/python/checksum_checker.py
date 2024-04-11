@@ -5,7 +5,7 @@ def checksum():
     # URL of the file
     urls = [
     "https://slack.com/ssb/download-osx-universal",
-    "https://zoom.us/client/5.17.5.29101/zoomusInstallerFull.pkg",
+    "https://zoom.us/client/5.17.11.31580/zoomusInstallerFull.pkg",
     "https://www.sonos.com/redir/controller_software_mac2",
     "https://download.teamviewer.com/download/TeamViewerHost.dmg",
     "https://dl.google.com/drive-file-stream/GoogleDrive.dmg",
@@ -14,7 +14,8 @@ def checksum():
     "https://get.videolan.org/vlc/3.0.20/macosx/vlc-3.0.20-universal.dmg",
     "https://download.scdn.co/SpotifyInstaller.zip", 
     "https://pax.discord.com/api/download?platform=osx", 
-    "https://web.whatsapp.com/desktop/mac_native/release/?configuration=Release"
+    "https://web.whatsapp.com/desktop/mac_native/release/?configuration=Release",
+    "https://cdn.wacom.com/u/productsupport/drivers/mac/professional/WacomTablet_6.4.5-3.dmg",
     ]
 
     num = 1
@@ -55,8 +56,11 @@ def checksum():
         elif num == 10:
             with open("./border_control/discord_check.txt", "w") as f:
                 print(checksum, file=f)
-        else:
+        elif num == 11:
             with open("./border_control/whatsapp_check.txt", "w") as f:
+                print(checksum, file=f)
+        else:
+            with open("./border_control/wacom_check.txt", "w") as f:
                 print(checksum, file=f)
 
         num += 1
