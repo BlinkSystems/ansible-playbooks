@@ -1,27 +1,4 @@
 ---
-- name: Check .dmg installer checksum and scan for virus
-  hosts: localhost  # Run tasks on the Ansible control node
-  gather_facts: false
-  vars:
-    check_file: "/tmp/blink_central.scpt"
-  
-  tasks:
-    - name: Install ClamAV
-      become: yes
-      package:
-        name: clamav
-        state: present
-
-    - name: Scan .scpt file with ClamAV
-      command: clamscan --stdout "{{ check_file }}"
-      register: clamav_result
-      changed_when: false
-
-    - name: Fail if virus found
-      fail:
-        msg: "Virus detected in the downloaded file!"
-      when: "'FOUND' in clamav_result.stdout"
-
 - hosts: "{{ target }}"
   gather_facts: false
   tasks:
