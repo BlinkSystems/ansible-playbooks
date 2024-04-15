@@ -16,6 +16,7 @@ def checksum():
     "https://pax.discord.com/api/download?platform=osx", 
     "https://web.whatsapp.com/desktop/mac_native/release/?configuration=Release",
     "https://cdn.wacom.com/u/productsupport/drivers/mac/professional/WacomTablet_6.4.5-3.dmg",
+    "https://builds.parsec.app/package/parsec-macos.pkg",
     ]
 
     num = 1
@@ -59,8 +60,11 @@ def checksum():
         elif num == 11:
             with open("./border_control/whatsapp_check.txt", "w") as f:
                 print(checksum, file=f)
-        else:
+        elif num == 12:
             with open("./border_control/wacom_check.txt", "w") as f:
+                print(checksum, file=f)
+        else:
+            with open("./border_control/parsec_check.txt", "w") as f:
                 print(checksum, file=f)
 
         num += 1

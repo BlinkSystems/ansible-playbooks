@@ -1,0 +1,54 @@
+---
+- name: Check .dmg installer checksum and scan for virus
+  hosts: localhost  # Run tasks on the Ansible control node
+  gather_facts: false
+  vars:
+    check_file: "/home/eng/apps/Maxon_App_2024.3.0_Mac.dmg"
+
+  # tasks:
+#     - name: Install ClamAV
+#       become: yes
+#       package:
+#         name: clamav
+#         state: present
+
+#     - name: Scan downloaded file with ClamAV
+#       command: clamscan --stdout "{{ check_file }}"
+#       register: clamav_result
+#       changed_when: false
+
+#     - name: Fail if virus found
+#       fail:
+#         msg: "Virus detected in the downloaded file!"
+#       when: "'FOUND' in clamav_result.stdout"
+
+- name: Install Maxon App
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars:
+      install_dir: "/Applications"
+  tasks:
+    - name: Transfer the .dmg file to target hosts
+      ansible.builtin.copy:
+        src: "/home/eng/apps/Maxon_App_2024.3.0_Mac.dmg"
+        dest: "/tmp/maxon_app_2024.dmg"
+    
+    - name: Mount DMG
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/Maxon App Installer" "/tmp/maxon_app_2024.dmg"
+      register: mounted_volume
+
+    - name: Install from installer.app
+      command: "/Volumes/Maxon\\ App\\ Installer/Maxon\\ App\\ Installer.app/Contents/MacOS/installbuilder.sh"
+      become: yes
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/Maxon App Installer"
+
+    - name: Delete .dmg specified
+      file:
+        path: "/tmp/maxon_app_2024.dmg"
+        state: absent
