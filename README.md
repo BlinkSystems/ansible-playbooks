@@ -9,12 +9,12 @@ Task-specific Playbooks: Each playbook is tailored to address specific tasks, en
 
 Idempotent Execution: Ansible ensures idempotent execution, meaning that running the playbook multiple times results in the same state, reducing the risk of unintended changes and ensuring reliability.
 
-Documentation: Detailed documentation is provided for each playbook, offering insights into the purpose, usage, and potential customization options. This enables users to understand and adapt the playbooks to their specific needs.
+Documentation: Detailed documentation is provided for each playbook, offering insights into the purpose, usage, and potential customization options for better understanding on the playbooks processes.
 
 Getting Started
 Install Ansible: Ensure Ansible is installed on your control machine. Refer to the official Ansible installation guide for instructions.
 
-Clone the Repository: Clone this repository to your local machine using the following command:
+Clone the Repository: Clone this repository to your ansible server using the following command:
 
 git clone https://github.com/PaleElric/ansible-playbooks.git
 Navigate to Playbooks: Enter the directory containing the playbooks:
