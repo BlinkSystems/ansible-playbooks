@@ -53,7 +53,7 @@
   - name: Copy App to Applications
     command: cp -R "/Volumes/Sonos/Sonos.app" /Applications/
 
-   - name: Pause to allow installation to complete
+  - name: Pause to allow installation to complete
     pause:
       seconds: 3
 

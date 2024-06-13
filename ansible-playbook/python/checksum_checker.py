@@ -5,11 +5,11 @@ def checksum():
     # URL of the file
     urls = [
     "https://slack.com/ssb/download-osx-universal",
-    "https://zoom.us/client/5.17.11.31580/zoomusInstallerFull.pkg",
+    "https://zoom.us/client/6.0.2.33403/zoomusInstallerFull.pkg?archType=arm64",
     "https://www.sonos.com/redir/controller_software_mac2",
     "https://download.teamviewer.com/download/TeamViewerHost.dmg",
     "https://dl.google.com/drive-file-stream/GoogleDrive.dmg",
-    "https://d3gcli72yxqn2z.cloudfront.net/downloads/connect/latest/bin/ibm-aspera-connect_4.2.8.540_macOS_x86_64.pkg",
+    "https://d3gcli72yxqn2z.cloudfront.net/downloads/connect/latest/bin/ibm-aspera-connect_4.2.10.749_macOS_x86_64.pkg",
     "https://sg-software.ems.autodesk.com/deploy/rv/Current_Release/MacOS-release.dmg",
     "https://get.videolan.org/vlc/3.0.20/macosx/vlc-3.0.20-universal.dmg",
     "https://download.scdn.co/SpotifyInstaller.zip", 
