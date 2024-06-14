@@ -1,0 +1,56 @@
+---
+- name: Install default apps 
+  hosts: "{{ target }}" 
+  gather_facts: false
+  tasks: 
+#Upgrade all instaled packages  
+  - name: Upgrade installed packages
+    win_chocolatey:
+      name: all
+      state: latest
+   
+  - name: install forticlientvpn
+    win_chocolatey:
+      name: forticlientvpn
+      state: present
+   
+  - name: install filezilla
+    win_chocolatey:
+      name: filezilla
+      state: present
+   
+  - name: install zoom
+    win_chocolatey:
+      name: zoom
+      state: present
+  
+  - name: install djv
+    win_chocolatey:
+      name: djv
+      state: present
+  
+  - name: install vlc
+    win_chocolatey:
+      name: vlc
+      state: present
+  
+  - name: install slack
+    win_chocolatey:
+      name: slack
+      state: present
+   
+  - name: install dropbox
+    win_chocolatey:
+      name: dropbox
+      state: present
+
+   
+  - name: install adobereader
+    win_chocolatey:
+      name: adobereader
+      state: present
+   
+  - name: install office365business
+    win_chocolatey:
+      name: office365business
+      state: present

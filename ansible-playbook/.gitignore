@@ -2,3 +2,4 @@ apps
 python/venv
 tmp
 Automator
+ansible-playbook/windows-playbooks/win_test_playbook.yaml
