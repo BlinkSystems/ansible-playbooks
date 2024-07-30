@@ -4,7 +4,7 @@
   gather_facts: false
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/discord_check.txt') }}"
-    download_url: "https://pax.discord.com/api/download?platform=osx"
+    download_url: "https://discord.com/api/download?platform=osx"
     download_path: "/home/eng/apps/Discord.dmg"
 
   

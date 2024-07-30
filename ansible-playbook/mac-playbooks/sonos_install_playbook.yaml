@@ -46,9 +46,22 @@
       src: "/home/eng/apps/Sonos.dmg"
       dest: "/tmp/Sonos.dmg"
 
+  - name: Check if volume is already mounted
+    shell: hdiutil info | grep "/Volumes/Sonos"
+    ignore_errors: true
+    register: is_volume_mounted
+
+  - name: Mount DMG if not already mounted
+    command: hdiutil attach -nobrowse -mountpoint "/Volumes/Sonos" "/tmp/Sonos.dmg"
+    when: is_volume_mounted.rc != 0
+
   - name: Mount DMG
     command: hdiutil attach -nobrowse -mountpoint "/Volumes/Sonos" "/tmp/Sonos.dmg"
     register: mounted_volume
+
+  - name: Debug path existence
+    debug:
+      msg: "Path exists: {{ '/Volumes/Sonos' | realpath }}"
 
   - name: Copy App to Applications
     command: cp -R "/Volumes/Sonos/Sonos.app" /Applications/
