@@ -3,6 +3,7 @@ python/venv
 tmp
 Automator
 ansible-playbook/windows-playbooks/win_test_playbook.yaml
+ansible-playbook/mac-playbooks/._ibm_aspera_connect_install_playbook.yaml
 ansible-playbook/python/.DS_Store
 ansible-playbook/python/._.DS_Store
 ansible-playbook/python/._boop.txt
