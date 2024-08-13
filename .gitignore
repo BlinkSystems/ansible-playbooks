@@ -1,0 +1,5 @@
+venv
+py/hush.py
+py/boop.txt
+py/textfile.txt
+ansible-playbook/._.DS_Store
