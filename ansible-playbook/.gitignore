@@ -1,6 +1,6 @@
 venv
 mac-playbooks/._ibm_aspera_connect_install_playbook.yaml
 ._.DS_Store
-py/hush.py
-py/boop.txt
-py/textfile.txt
+/py/hush.py
+/py/boop.txt
+/py/textfile.txt
