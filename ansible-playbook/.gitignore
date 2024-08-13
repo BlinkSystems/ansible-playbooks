@@ -1,11 +1,6 @@
-apps
-python/venv
-tmp
-Automator
+venv
 mac-playbooks/._ibm_aspera_connect_install_playbook.yaml
-python/._.DS_Store
-python/.DS_Store
-python/._boop.txt
-python/._smtp.py
-python/._url.py
-python/textfile.txt
+._.DS_Store
+py/hush.py
+py/boop.txt
+py/textfile.txt

@@ -22,13 +22,13 @@ def url_checker(url):
         get = requests.get(url)
         # if the requests succeeds
         if get.status_code == 200:
-            return(f"{url}: is reachable")
+            return(f"{url}: is reachable, Status_Code : {get.status_code}")
         else:
-            return(f"{url}: is not reachable, status_code: {get.status_code}")
+            return(f"{url}: is not reachable, Status_Code: {get.status_code}")
     except requests.exceptions.RequestException as e:
         raise SystemExit(f"{url} is not reachable \nErr: {e}")
 
-with open("/home/eng/ansible/ansible-playbook/python/textfile.txt", "w", encoding='utf-8') as f:
+with open("/home/eng/ansible/py/textfile.txt", "w", encoding='utf-8') as f:
 
     for url in urls:
         result = (url_checker(url))
