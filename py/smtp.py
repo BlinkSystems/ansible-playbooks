@@ -20,7 +20,7 @@ dt = datetime.datetime.now()
 dt_sign =(dt.strftime("%c"))
 
 subject = 'Beep, Ansible reminder of the URL links!'
-with open('./py/textfile.txt', 'r') as f:
+with open('./textfile.txt', 'r') as f:
 	textfile = f.read()
 	
 message = """\
