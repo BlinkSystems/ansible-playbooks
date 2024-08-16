@@ -2,14 +2,16 @@ import smtplib
 import ssl
 import datetime
 from email.message import EmailMessage
-import hashlib
-import os
+from pathlib import Path
 import json
-import getpass
+import os
 
-user = getpass.getuser()
-json_file_path = f"/home/{user}/json/.json"
- 
+
+
+relative_path = [Path('ansible/py/url_status.txt'), Path('json/.json')]
+txtfl = relative_path[0].resolve()
+json_file_path = relative_path[1].resolve()
+
 with open(json_file_path, "r") as f:
 	data = json.load(f)
 	boop = data['boop']
@@ -20,7 +22,7 @@ dt = datetime.datetime.now()
 dt_sign =(dt.strftime("%c"))
 
 subject = 'Beep, Ansible reminder of the URL links!'
-with open('./textfile.txt', 'r') as f:
+with open(txtfl, 'r') as f:
 	textfile = f.read()
 	
 message = """\

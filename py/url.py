@@ -1,4 +1,11 @@
 import requests
+from pathlib import Path
+
+
+relative_path = Path('ansible/py/url_status.txt')
+txtfl = relative_path.resolve()
+
+print(txtfl)
 
 urls = [
 "https://slack.com/ssb/download-osx-universal",
@@ -28,7 +35,7 @@ def url_checker(url):
     except requests.exceptions.RequestException as e:
         raise SystemExit(f"{url} is not reachable \nErr: {e}")
 
-with open("/home/eng/ansible/py/textfile.txt", "w", encoding='utf-8') as f:
+with open(txtfl, "w", encoding='utf-8') as f:
 
     for url in urls:
         result = (url_checker(url))

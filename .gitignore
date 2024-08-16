@@ -1,5 +1,7 @@
+__pycache__
 venv
-py/hush.py
-py/boop.txt
-py/textfile.txt
-ansible-playbook/._.DS_Store
+*/hush.py
+*/boop.txt
+*/url_status.txt
+*/._.DS_Store
+test.py
