@@ -1,72 +1,37 @@
-import hashlib
+import json
+from pathlib import Path
 import requests
+import hashlib
 
-def checksum():
+
+def checksum(urls):
     # URL of the file
-    urls = [
-    "https://slack.com/ssb/download-osx-universal",
-    "https://zoom.us/client/6.0.2.33403/zoomusInstallerFull.pkg?archType=arm64",
-    "https://www.sonos.com/redir/controller_software_mac2",
-    "https://download.teamviewer.com/download/TeamViewerHost.dmg",
-    "https://dl.google.com/drive-file-stream/GoogleDrive.dmg",
-    "https://d3gcli72yxqn2z.cloudfront.net/downloads/connect/latest/bin/ibm-aspera-connect_4.2.12.780_macOS_x86_64.pkg",
-    "https://sg-software.ems.autodesk.com/deploy/rv/Current_Release/MacOS-release.dmg",
-    "https://get.videolan.org/vlc/3.0.20/macosx/vlc-3.0.20-universal.dmg",
-    "https://download.scdn.co/SpotifyInstaller.zip", 
-    "https://discord.com/api/download?platform=osx", 
-    "https://web.whatsapp.com/desktop/mac_native/release/?configuration=Release",
-    "https://cdn.wacom.com/u/productsupport/drivers/mac/professional/WacomTablet_6.4.5-3.dmg",
-    "https://builds.parsec.app/package/parsec-macos.pkg",
-    ]
+    with open(urls, 'r') as f:
+        data = json.load(f)
 
-    num = 1
+    apps = ['slack', 'zoom', 'sonos',
+            'tmvhost', 'gdrive', 'ibm_aspera',
+            'rv', 'vlc', 'spotify',
+            'discord', 'whatsapp', 'wacom',
+            'parsec']
 
-    for url in urls:
+    num = 0
+
+    for url in data:
         # Download the file
-        response = requests.get(f"{url}")
+        response = requests.get(f"{data[url]}")
         # Calculate the checksum
         checksum = hashlib.sha256(response.content).hexdigest()
         # Save checksum
-        if num == 1:
-            with open("./border_control/slack_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 2:
-            with open("./border_control/zoom_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 3:
-            with open("./border_control/sonos_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 4:
-            with open("./border_control/tmvhost_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 5:
-            with open("./border_control/gdrive_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 6:
-            with open("./border_control/ibm_aspera_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 7:
-            with open("./border_control/rv_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 8:
-            with open("./border_control/vlc_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 9:
-            with open("./border_control/spotify_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 10:
-            with open("./border_control/discord_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 11:
-            with open("./border_control/whatsapp_check.txt", "w") as f:
-                print(checksum, file=f)
-        elif num == 12:
-            with open("./border_control/wacom_check.txt", "w") as f:
+        if url == apps[num]:
+            with open(f"./border_control/{url}_check.txt", "w") as f:
                 print(checksum, file=f)
         else:
-            with open("./border_control/parsec_check.txt", "w") as f:
-                print(checksum, file=f)
+            print(f"Something's wrong {url} doesn't match!")
 
         num += 1
 
-checksum()
+if __name__ == '__main__':
+    json_relative_path = Path('./json/urls.json')
+    urls = json_relative_path.resolve()
+    checksum(urls)

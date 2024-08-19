@@ -1,28 +1,12 @@
 import requests
 from pathlib import Path
+import json
 
 
 relative_path = Path('ansible/py/url_status.txt')
+json_relative_path = Path('./json/urls.json')
 txtfl = relative_path.resolve()
-
-print(txtfl)
-
-urls = [
-"https://slack.com/ssb/download-osx-universal",
-"https://zoom.us/client/6.0.2.33403/zoomusInstallerFull.pkg?archType=arm64",
-"https://www.sonos.com/redir/controller_software_mac2",
-"https://download.teamviewer.com/download/TeamViewerHost.dmg",
-"https://dl.google.com/drive-file-stream/GoogleDrive.dmg",
-"https://d3gcli72yxqn2z.cloudfront.net/downloads/connect/latest/bin/ibm-aspera-connect_4.2.12.780_macOS_x86_64.pkg",
-"https://sg-software.ems.autodesk.com/deploy/rv/Current_Release/MacOS-release.dmg",
-"https://get.videolan.org/vlc/3.0.20/macosx/vlc-3.0.20-universal.dmg",
-"https://download.scdn.co/SpotifyInstaller.zip", 
-"https://discord.com/api/download?platform=osx", 
-"https://web.whatsapp.com/desktop/mac_native/release/?configuration=Release",
-"https://cdn.wacom.com/u/productsupport/drivers/mac/professional/WacomTablet_6.4.5-3.dmg",
-"https://builds.parsec.app/package/parsec-macos.pkg",
-]
-
+urls = json_relative_path.resolve()
 
 def url_checker(url):
     try:
@@ -35,10 +19,16 @@ def url_checker(url):
     except requests.exceptions.RequestException as e:
         raise SystemExit(f"{url} is not reachable \nErr: {e}")
 
-with open(txtfl, "w", encoding='utf-8') as f:
 
-    for url in urls:
-        result = (url_checker(url))
-        f.write(f'{result}\n')
+if __name__ == '__main__':
 
-f.close()
+    with open(urls, 'r') as f:
+        data = json.load(f)
+
+    with open(txtfl, "w", encoding='utf-8') as f:
+
+        for url in data:
+            result = (url_checker(data[url]))
+            f.write(f'{result}\n')
+
+    f.close()
