@@ -49,3 +49,4 @@ URL links status:
 
 if __name__ == "__main__":
   smtp(sender, recipient, subject, textfile, dt_sign)
+  os.remove(relative_path[0])
