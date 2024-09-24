@@ -36,7 +36,7 @@
       command: "unzip -o /tmp/creative_cloud.zip -d /Applications"
 
     - name: Install from installer.app
-      command: "sudo installer -pkg /Applications/Adobe\\ Creative\\ Cloud/Build/Adobe\\ Creative\\ Cloud_Install.pkg -target /"
+      command: "sudo installer -pkg /Applications/Adobe_Creative_Cloud.pkg -target /"
       become: yes
 
     - name: Pause to allow installation to complete
@@ -46,6 +46,11 @@
     - name: Copy shortcut
       command: "sudo cp -R /Applications/Adobe\\ Creative\\ Cloud/Adobe\\ Creative\\ Cloud /Applications/Adobe\\ Creative\\ Cloud.app"
       become: yes
+
+    - name: Clean up the downloaded .pkg file
+      file:
+        path: "/Applications/Adobe_Creative_Cloud.pkg"
+        state: absent
     
     - name: Clean up the downloaded .zip file
       file:

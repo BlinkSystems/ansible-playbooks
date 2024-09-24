@@ -16,7 +16,7 @@
     - name: Calculate the checksum of the downloaded file
       command: "shasum -a 256 '{{ download_path }}'"
       register: calculated_checksum
-        
+    
     - name: Compare checksum values
       assert:
         that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
@@ -57,8 +57,17 @@
       args:
         creates: "{{ install_dir }}/{{ app_name }}"
 
+    # - name: Install from installer.app
+    #   command: "{{ install_dir }}/Install\\ Spotify.app/Contents/MacOS/Install\\ Spotify"
+
+    - name: Run with executable permissions
+      ansible.builtin.command: chmod +x "{{ install_dir }}/Install Spotify.app/Contents/MacOS/Install Spotify"
+
     - name: Install from installer.app
-      command: "{{ install_dir }}/Install\\ Spotify.app/Contents/MacOS/Install\\ Spotify"
+      ansible.builtin.command: "{{ install_dir }}/Install\\ Spotify.app/Contents/MacOS/Install\\ Spotify"
+      # async: 60
+      # poll: 0
+
 
     - name: Ensure the application is installed
       stat:

@@ -17,7 +17,7 @@
 - import_playbook: vlc_install_playbook.yaml
 - import_playbook: sonos_install_playbook.yaml
 - import_playbook: rv_player_install_playbooks.yaml
-- import_playbook: spotify_install_playbook.yaml
+# - import_playbook: spotify_install_playbook.yaml
 - import_playbook: whatsapp_install_playbook.yaml
 - import_playbook: adobe_cc_install_playbook.yaml
 - import_playbook: 365_office_install_playbook.yaml

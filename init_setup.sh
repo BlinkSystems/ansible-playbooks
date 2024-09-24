@@ -6,7 +6,7 @@ echo "Enter password: "
 read -s password
 
 # # Define the path to the .dmg file on the local machine
-local_dmg_path="./apps/xcode/Command_Line_Tools_for_Xcode_15.dmg"
+local_dmg_path="./apps/xcode/Command_Line_Tools_for_Xcode_16.dmg"
 
 # # Define the mount point for the .dmg file on the remote machine
 remote_mount_point="/Volumes/Command Line Developer Tools"
