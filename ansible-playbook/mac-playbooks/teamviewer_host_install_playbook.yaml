@@ -58,7 +58,16 @@
     - name: Pause to allow installation to complete
       pause:
         seconds: 15
-    
+
+    - name: Device name
+      command: scutil --get ComputerName
+      register: command_output
+
+    - name: Add device to TeamViewer Management and grant --grant-easy-access
+      command: 'sudo /Applications/TeamViewerHost.app/Contents/Helpers/TeamViewer_Assignment -api-token 24841421-hRqLJ7oomxd9M9uX5MDo -group "Unknown" -alias {{ command_output.stdout }} -grant-easy-access'
+      become: yes
+      become_method: sudo
+
     - name: Unmount DMG
       command: hdiutil detach "/Volumes/TeamViewerHost"
 

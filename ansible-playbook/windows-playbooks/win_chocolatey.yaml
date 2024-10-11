@@ -2,6 +2,8 @@
 - name: Install default apps 
   hosts: "{{ target }}" 
   gather_facts: false
+  vars_files:
+    - "{{ lookup('env', 'ANSIBLE_ENV') }}"
   tasks: 
 #Upgrade all instaled packages  
   - name: Upgrade installed packages
@@ -38,8 +40,12 @@
     win_chocolatey:
       name: dropbox
       state: present
+    
+  - name: install parsec
+    win_chocolatey:
+      name: parsec
+      state: present
 
-   
   - name: install adobereader
     win_chocolatey:
       name: adobereader

@@ -1,25 +1,71 @@
 ---
-- name: Install default apps 
-  hosts: "{{ target }}" 
+- name: Check .pkg installer checksum and scan for virus
+  hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
-  tasks: 
-#Upgrade all instaled packages  
-  - name: Upgrade installed packages
-    win_chocolatey:
-      name: all
-      state: latest
-   
-  - name: install adobeReader
-    win_chocolatey:
-      name: adobereader
-      state: present
+  vars:
+    file_contents: "{{ lookup('file', '/home/eng/border_control/win_ibm_aspera_check.txt') }}"
+    download_url: "https://d3gcli72yxqn2z.cloudfront.net/downloads/connect/latest/bin/ibm-aspera-connect_4.2.12.780_win32_AMD64.msi"
+    download_path: "/home/eng/apps/win_ibm_aspera.msi"
+
+  tasks:
+    - name: Download the .msi file
+      get_url:
+        url: "{{ download_url }}"
+        dest: "{{ download_path }}"
+
+    - name: Calculate the checksum of the downloaded file
+      command: "shasum -a 256 '{{ download_path }}'"
+      register: calculated_checksum
+        
+    - name: Compare checksum values
+      assert:
+        that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
+        msg: "Checksums do not match. File may be corrupted."
     
-  - name: Upgrade installed packages
-    win_chocolatey:
-      name: all
-      state: latest
-   
-  - name: install dropbox
-    win_chocolatey:
-      name: dropbox
-      state: present
+    - name: Install ClamAV
+      become: yes
+      package:
+        name: clamav
+        state: present
+
+    - name: Scan downloaded file with ClamAV
+      command: clamscan --stdout "{{ download_path }}"
+      register: clamav_result
+      changed_when: false
+
+    - name: Fail if virus found
+      fail:
+        msg: "Virus detected in the downloaded file!"
+      when: "'FOUND' in clamav_result.stdout"
+
+- name: Install IBM Aspera Connect
+  hosts: "{{ target }}"
+  vars_files:
+    - .vault.yml
+  tasks:
+
+  #Install MSI/.exe software 
+    - name: Copy PKG Installer
+      ansible.builtin.copy:
+        src: "/home/eng/apps/win_ibm_aspera.msi"
+        dest: C:\temp\IBM_Aspera.msi
+
+    - name: Check IBM Aspera is install through win_package
+      win_package:
+        path: C:\temp\IBM_Aspera.msi
+        state: present
+    
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Check if the file exists
+      win_stat:
+        path: C:\temp\IBM_Aspera.msi
+      register: file_status
+
+    - debug:
+        var: file_status
+
+    - name: Delete .msi file from directory
+      win_shell: Remove-Item -Path "C:\\temp\\IBM_Aspera.msi" -Force
