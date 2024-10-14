@@ -37,6 +37,10 @@
       fail:
         msg: "Virus detected in the downloaded file!"
       when: "'FOUND' in clamav_result.stdout"
+      
+    - name: Retrieve API key from a JSON File
+      set_fact:
+        key: "{{ (lookup('file', '/home/eng/json/.tokens.json') | from_json).team_token }}"
 
 - name: Install TeamviewerHost
   hosts: "{{ target }}"
@@ -63,8 +67,13 @@
       command: scutil --get ComputerName
       register: command_output
 
+    - name: Call API token
+      debug:
+        var: hostvars['localhost']['key']
+      when: hostvars['localhost']['key']
+
     - name: Add device to TeamViewer Management and grant --grant-easy-access
-      command: 'sudo /Applications/TeamViewerHost.app/Contents/Helpers/TeamViewer_Assignment -api-token 24841421-hRqLJ7oomxd9M9uX5MDo -group "Unknown" -alias {{ command_output.stdout }} -grant-easy-access'
+      command: 'sudo /Applications/TeamViewerHost.app/Contents/Helpers/TeamViewer_Assignment -api-token {{ hostvars.localhost.key }} -group "Unknown" -alias {{ command_output.stdout }} -grant-easy-access'
       become: yes
       become_method: sudo
 

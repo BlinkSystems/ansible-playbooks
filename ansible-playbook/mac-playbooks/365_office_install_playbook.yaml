@@ -2,7 +2,7 @@
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    check_file: "/home/eng/apps/Microsoft_365_and_Office_16.81.24011420_BusinessPro_Installer.pkg"
+    check_file: "/home/eng/apps/macOS/microsoft_office/Microsoft_365_and_Office_16.81.24011420_BusinessPro_Installer.pkg"
   
   tasks:
     - name: Install ClamAV
@@ -26,7 +26,7 @@
   tasks:
     - name: Copy PKG Installer
       ansible.builtin.copy:
-        src: /home/eng/apps/Microsoft_365_and_Office_16.81.24011420_BusinessPro_Installer.pkg
+        src: /home/eng/apps/macOS/microsoft_office/Microsoft_365_and_Office_16.81.24011420_BusinessPro_Installer.pkg
         dest: /tmp/Microsoft365.pkg
 
     - name: Install App

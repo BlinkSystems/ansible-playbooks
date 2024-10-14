@@ -6,3 +6,4 @@ venv
 */._.DS_Store
 test.py
 pyNet
+*/win_test_playbook.yaml

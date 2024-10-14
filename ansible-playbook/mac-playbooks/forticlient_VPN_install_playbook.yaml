@@ -3,7 +3,7 @@
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    check_file: "/home/eng/apps/FortiClientVPN.dmg"
+    check_file: "/home/eng/apps/macOS/forticlient/FortiClientVPN.dmg"
   
   tasks:
     - name: Install ClamAV
@@ -28,7 +28,7 @@
   tasks:
     - name: Download the .dmg file
       ansible.builtin.copy:
-        src: /home/eng/apps/FortiClientVPN.dmg
+        src: /home/eng/apps/macOS/forticlient/FortiClientVPN.dmg
         dest: "/tmp/forticlientVPN.dmg"
 
     - name: Check if volume is already mounted

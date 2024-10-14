@@ -1,0 +1,45 @@
+---
+- name: Check .pkg installer checksum and scan for virus
+  hosts: localhost  # Run tasks on the Ansible control node
+  gather_facts: false
+  vars:
+    # file_contents: "{{ lookup('file', '/home/eng/border_control/win_tmhost_check.txt') }}"
+    source: "/home/eng/apps/winOS/teamviewer_host/TeamViewer_MSI64/Host/TeamViewer_Host.msi"
+
+- name: Install TeamViewer Host
+  hosts: "{{ target }}"
+  vars_files:
+    - "{{ lookup('env', 'ANSIBLE_ENV') }}"
+  tasks:
+    - name: Read JSON Data from a file
+      set_fact:
+        key: "{{ (lookup('file', '/home/eng/json/.tokens.json') | from_json).team_token }}"
+
+  #Install MSI/.exe software 
+    - name: Copy .msi Installer
+      ansible.builtin.copy:
+        src: "/home/eng/apps/winOS/teamviewer_host/TeamViewer_MSI64/Host/TeamViewer_Host.msi"
+        dest: C:\ansible\tmHost.msi
+
+    - name: Check Teamviewer Host is installing through win_package
+      win_package:
+        path: C:\ansible\tmHost.msi
+        state: present
+    
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Add device to the Teamviewer managament
+      win_command: '"C:\Program Files\TeamViewer\TeamViewer.exe" assign --api-token {{ key }} --group "Unknown" --alias %COMPUTERNAME% --grant-easy-access'
+
+    - name: Check if the file exists
+      win_stat:
+        path: C:\ansible\tmHost.msi
+      register: file_status
+
+    - debug:
+        var: file_status
+
+    - name: Delete .msi file from directory
+      win_shell: Remove-Item -Path "C:\\ansible\\tmHost.msi" -Force

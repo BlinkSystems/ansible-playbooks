@@ -3,7 +3,7 @@
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    check_file: "/home/eng/apps/bit_defender.dmg"
+    check_file: "home/eng/apps/macOS/bit_defender/bit_defender.dmg"
   
   tasks:
     - name: Install ClamAV
@@ -29,7 +29,7 @@
   tasks:
     - name: Copy DMG Installer
       ansible.builtin.copy:
-        src: /home/eng/apps/bit_defender.dmg
+        src: home/eng/apps/macOS/bit_defender/bit_defender.dmg
         dest: /tmp/bit_defender.dmg
 
     - name: Check if volume is already mounted

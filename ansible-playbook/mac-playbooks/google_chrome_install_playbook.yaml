@@ -3,7 +3,7 @@
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    check_file: "/home/eng/apps/googlechrome.dmg"
+    check_file: "/home/eng/apps/macOS/chrome/googlechrome.dmg"
   
   tasks:
     - name: Install ClamAV
@@ -28,7 +28,7 @@
   tasks:
     - name: Download the .dmg file
       copy:
-        src: /home/eng/apps/googlechrome.dmg
+        src: /home/eng/apps/macOS/chrome/googlechrome.dmg
         dest: "/tmp/googlechrome.dmg"
 
     - name: Mount DMG

@@ -1,0 +1,10 @@
+---
+- name: Install default apps 
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars_files:
+    - "{{ lookup('env', 'ANSIBLE_ENV') }}"
+
+  tasks:
+    - name: Ping the windows machine
+      win_ping:

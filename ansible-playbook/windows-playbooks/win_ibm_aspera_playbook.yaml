@@ -5,7 +5,7 @@
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/win_ibm_aspera_check.txt') }}"
     download_url: "https://d3gcli72yxqn2z.cloudfront.net/downloads/connect/latest/bin/ibm-aspera-connect_4.2.12.780_win32_AMD64.msi"
-    download_path: "/home/eng/apps/win_ibm_aspera.msi"
+    download_path: "/home/eng/apps/winOS/ibm_aspera/win_ibm_aspera.msi"
 
   tasks:
     - name: Download the .msi file
@@ -41,18 +41,18 @@
 - name: Install IBM Aspera Connect
   hosts: "{{ target }}"
   vars_files:
-    - .vault.yml
+    - "{{ lookup('env', 'ANSIBLE_ENV') }}"
   tasks:
 
   #Install MSI/.exe software 
     - name: Copy PKG Installer
       ansible.builtin.copy:
-        src: "/home/eng/apps/win_ibm_aspera.msi"
-        dest: C:\temp\IBM_Aspera.msi
+        src: "/home/eng/apps/winOS/ibm_aspera/win_ibm_aspera.msi"
+        dest: C:\ansible\IBM_Aspera.msi
 
     - name: Check IBM Aspera is install through win_package
       win_package:
-        path: C:\temp\IBM_Aspera.msi
+        path: C:\ansible\IBM_Aspera.msi
         state: present
     
     - name: Pause to allow installation to complete
@@ -61,11 +61,11 @@
 
     - name: Check if the file exists
       win_stat:
-        path: C:\temp\IBM_Aspera.msi
+        path: C:\ansible\IBM_Aspera.msi
       register: file_status
 
     - debug:
         var: file_status
 
     - name: Delete .msi file from directory
-      win_shell: Remove-Item -Path "C:\\temp\\IBM_Aspera.msi" -Force
+      win_shell: Remove-Item -Path "C:\\ansible\\IBM_Aspera.msi" -Force

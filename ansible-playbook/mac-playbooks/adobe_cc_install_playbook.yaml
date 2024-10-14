@@ -3,7 +3,7 @@
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    check_file: "/home/eng/apps/Adobe_Creative_Cloud.zip"
+    check_file: "/home/eng/apps/macOS/adobe/Adobe_Creative_Cloud.zip"
   
   tasks:
     - name: Install ClamAV
@@ -29,7 +29,7 @@
 
     - name: Copy PKG Installer
       ansible.builtin.copy:
-        src: /home/eng/apps/Adobe_Creative_Cloud.zip
+        src: /home/eng/apps/macOS/adobe/Adobe_Creative_Cloud.zip
         dest: /tmp/creative_cloud.zip
 
     - name: Unzip the application

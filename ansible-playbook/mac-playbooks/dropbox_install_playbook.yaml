@@ -3,7 +3,7 @@
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    check_file: "/home/eng/apps/DropboxInstaller.dmg"
+    check_file: "/home/eng/apps/macOS/dropbox/DropboxInstaller.dmg"
   
   tasks:
     - name: Install ClamAV
@@ -28,7 +28,7 @@
   tasks:
     - name: Download the .dmg file
       copy:
-        src: /home/eng/apps/DropboxInstaller.dmg
+        src: /home/eng/apps/macOS/dropbox/DropboxInstaller.dmg
         dest: "/tmp/Dropbox.dmg"
 
     - name: Mount DMG
