@@ -1,0 +1,9 @@
+---
+- name: Reboot windows device
+  hosts: "{{ target }}"
+  vars_files:
+  - "{{ lookup('env', 'ANSIBLE_ENV') }}"
+  tasks:
+  - name: Reboot the machine with all defaults
+    ansible.windows.win_reboot:
+      reboot_timeout: 600

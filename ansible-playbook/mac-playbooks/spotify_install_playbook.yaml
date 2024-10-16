@@ -4,11 +4,11 @@
   gather_facts: false
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/spotify_check.txt') }}"
-    download_url: "https://download.scdn.co/SpotifyInstaller.zip"
-    download_path: "/home/eng/apps/Spotify.zip"
+    download_url: "http://download.spotify.com/Spotify.dmg"
+    download_path: "/home/eng/apps/Spotify.dmg"
 
   tasks:
-    - name: Download the .zip file
+    - name: Download the .dmg file
       get_url:
         url: "{{ download_url }}"
         dest: "{{ download_path }}"
@@ -43,51 +43,47 @@
   gather_facts: false
   vars:
       app_name: "Spotify.app"
-      zip_name: "/tmp/Spotify.zip"
-      zip_install_name: "SpotifyInstaller.zip"
+      dmg_name: "/tmp/Spotify.dmg"
       install_dir: "/Applications"
   tasks:
     - name: Transfer the .dmg file to target hosts
       ansible.builtin.copy:
-        src: "/home/eng/apps/Spotify.zip"
-        dest: "/tmp/Spotify.zip"
-    
-    - name: Unzip the application
-      command: "unzip -o {{ zip_name }} -d /{{ install_dir }}"
-      args:
-        creates: "{{ install_dir }}/{{ app_name }}"
-
-    # - name: Install from installer.app
-    #   command: "{{ install_dir }}/Install\\ Spotify.app/Contents/MacOS/Install\\ Spotify"
-
-    - name: Run with executable permissions
-      ansible.builtin.command: chmod +x "{{ install_dir }}/Install Spotify.app/Contents/MacOS/Install Spotify"
-
-    - name: Install from installer.app
-      ansible.builtin.command: "{{ install_dir }}/Install\\ Spotify.app/Contents/MacOS/Install\\ Spotify"
-      # async: 60
-      # poll: 0
+        src: "/home/eng/apps/Spotify.dmg"
+        dest: "/tmp/Spotify.dmg"
 
 
-    - name: Ensure the application is installed
-      stat:
-        path: "{{ install_dir }}/{{ app_name }}"
-      register: app_installed
+    - name: Check if volume is already mounted
+      shell: hdiutil info | grep "/Volumes/Spotify"
+      ignore_errors: true
+      register: is_volume_mounted
 
-    - name: Display debug information
+    - name: Mount DMG if not already mounted
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/Spotify" "/tmp/Spotify.dmg"
+      when: is_volume_mounted.rc != 0
+
+    - name: Mount DMG
+      command: hdiutil attach -nobrowse -mountpoint "/Volumes/Spotify" "/tmp/Spotify.dmg"
+      register: mounted_volume
+
+    - name: Debug path existence
       debug:
-        var: app_installed
+        msg: "Path exists: {{ '/Volumes/Spotify' | realpath }}"
+
+    - name: Copy App to Applications
+      command: cp -R "/Volumes/Spotify/Spotify.app" /Applications/
+
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 3
+
+    - name: Unmount DMG
+      command: hdiutil detach "/Volumes/Spotify"
 
     - name: Pause to allow installation to complete
       pause:
         seconds: 10
 
-    - name: Clean up the downloaded .zip file
+    - name: Delete .dmg specified
       file:
-        path: "{{ zip_name }}"
-        state: absent
-
-    - name: Clean up the downloaded .zip file from Applications
-      file:
-        path: "/{{ install_dir }}/Install Spotify.app"
+        path: "/tmp/Spotify.dmg"
         state: absent

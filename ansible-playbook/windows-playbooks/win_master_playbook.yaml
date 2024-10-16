@@ -1,0 +1,12 @@
+---
+- name: Windows Master Playbook Installer
+  hosts: "{{ target }}"
+  vars_files:
+    - "{{ lookup('env', 'ANSIBLE_ENV') }}"
+  gather_facts:
+# - import_playbook: win_teamhost_playbook.yaml
+# - import_playbook: win_chocolatey.yaml
+# - import_playbook: win_ibm_aspera_playbook.yaml
+# - import_playbook: win_eset_playbook.yaml
+- import_playbook: win_reboot_command.yaml
+- import_playbook: win__ping__.yaml
