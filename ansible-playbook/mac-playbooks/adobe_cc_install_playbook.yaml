@@ -1,5 +1,5 @@
 ---
-- name: ClamAV
+- name: Creative Cloud Installer for macOS devices
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
@@ -22,12 +22,12 @@
         msg: "Virus detected in the downloaded file!"
       when: "'FOUND' in clamav_result.stdout"
 
-- name: Check .dmg installer checksum
+- name: Check .zip checksum
   hosts: "{{ target }}"
   gather_facts: false
   tasks:
 
-    - name: Copy PKG Installer
+    - name: Copy .zip Installer
       ansible.builtin.copy:
         src: /home/eng/apps/macOS/adobe/Adobe_Creative_Cloud.zip
         dest: /tmp/creative_cloud.zip

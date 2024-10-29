@@ -5,7 +5,7 @@
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/sonos_check.txt') }}"
     download_url: "https://www.sonos.com/redir/controller_software_mac2"
-    download_path: "/home/eng/apps/Sonos.dmg"
+    download_path: "/home/eng/apps/macOS/.tempDir/Sonos.dmg"
 
   tasks:
     - name: Download the .dmg file
@@ -43,7 +43,7 @@
   tasks:
   - name: Transfer the .dmg file to target hosts
     ansible.builtin.copy:
-      src: "/home/eng/apps/Sonos.dmg"
+      src: "/home/eng/apps/macOS/.tempDir/Sonos.dmg"
       dest: "/tmp/Sonos.dmg"
 
   - name: Check if volume is already mounted

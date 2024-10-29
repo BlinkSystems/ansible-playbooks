@@ -5,7 +5,7 @@
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/wacom_check.txt') }}"
     download_url: "https://cdn.wacom.com/u/productsupport/drivers/mac/professional/WacomTablet_6.4.5-3.dmg"
-    download_path: "/home/eng/apps/wacom.dmg"
+    download_path: "/home/eng/apps/macOS/.tempDir/wacom.dmg"
 
   tasks:
     - name: Download the .zip file
@@ -44,7 +44,7 @@
   tasks:
     - name: Transfer the .dmg file to target hosts
       ansible.builtin.copy:
-        src: "/home/eng/apps/wacom.dmg"
+        src: "/home/eng/apps/macOS/.tempDir/wacom.dmg"
         dest: "/tmp/wacom.dmg"
   
     - name: Mount DMG

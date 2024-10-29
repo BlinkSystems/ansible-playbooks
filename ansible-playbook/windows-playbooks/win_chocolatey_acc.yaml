@@ -30,25 +30,10 @@
     win_chocolatey:
       name: vlc
       state: present
-  
-  - name: install slack
-    win_chocolatey:
-      name: slack
-      state: present
    
   - name: install dropbox
     win_chocolatey:
       name: dropbox
-      state: present
-    
-  - name: install parsec
-    win_chocolatey:
-      name: parsec
-      state: present
-
-  - name: install adobereader
-    win_chocolatey:
-      name: adobereader
       state: present
    
   - name: install office365business

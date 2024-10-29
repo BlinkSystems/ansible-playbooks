@@ -1,5 +1,5 @@
 ---
-- name: Check .pkg installer checksum and scan for virus
+- name: TeamViewer Host Installer for winOS devices
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:

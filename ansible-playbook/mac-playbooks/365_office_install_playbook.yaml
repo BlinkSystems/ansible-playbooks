@@ -1,4 +1,4 @@
-- name: ClamAV
+- name: Microsoft Office 365 for macOS devices
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:

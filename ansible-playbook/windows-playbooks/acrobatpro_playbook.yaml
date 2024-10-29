@@ -1,0 +1,70 @@
+---
+- name: Acrobat Pro installer for winOS
+  hosts: localhost  # Run tasks on the Ansible control node
+  vars:
+      ansible_hostname: "{{ inventory_hostname }}"
+      source: /home/eng/apps/winOS/adobe/acrobat/Acrobat_24.1_winOS/AcrobatCustomMSI
+    
+  tasks:
+    - name: Get localhost IP address
+      shell: ip addr show ens192 | awk '/inet / {split($2, a, "/"); print a[1]}'
+      register: hostname
+
+    - name: Set localhost IP address as fact
+      set_fact:
+        localhost_ip: "{{ hostname.stdout }}"
+
+    - name: Install ClamAV
+      become: yes
+      package:
+        name: clamav
+        state: present
+
+    - name: Scan folder with ClamAV
+      command: clamscan --stdout "{{ source }}"
+      register: clamav_result
+      changed_when: false
+
+    - name: Fail if virus found
+      fail:
+        msg: "Virus detected in the downloaded file!"
+      when: "'FOUND' in clamav_result.stdout"
+
+- name: Network Drive to Acrobat Pro installer
+  hosts: "{{ target }}"
+  gather_facts: false
+  vars_files:
+    - "{{ lookup('env', 'ANSIBLE_ENV') }}"
+  vars:
+    source: "/home/eng/apps/winOS/adobe/acrobat/Acrobat_24.1_winOS/AcrobatCustomMSI"
+    endpoint: C:\ansible\
+  tasks:
+  # Install MSI/.exe software 
+    - name: Copy .msi Installer
+      ansible.builtin.copy:
+        src: "{{ source }}"
+        dest: "{{ endpoint }}"
+
+    - name: Install an MSI file
+      ansible.windows.win_package:
+        path: C:\ansible\AcrobatCustomMSI\AcroPro.msi
+        arguments: "/qn /norestart"
+        log_path: "C:\\ansible\\msiexec.log"
+ 
+    - name: Pause to allow installation to complete
+      pause:
+        seconds: 10
+
+    - name: Check if the file exists
+      win_stat:
+        path: C:\ansible\AcrobatCustomMSI
+      register: file_status
+
+    - debug:
+        var: file_status
+
+    - name: Delete directory
+      win_shell: Remove-Item -Path "C:\ansible\AcrobatCustomMSI" -Recurse
+
+    - name: Delete file
+      win_shell: Remove-Item -Path "C:\ansible\msiexec.log" -Path

@@ -1,14 +1,14 @@
 ---
-- name: IBM Aspera Installer for winOS
+- name: Final Draft Installer for winOS devices
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    file_contents: "{{ lookup('file', '/home/eng/border_control/win_ibm_aspera_check.txt') }}"
-    download_url: "https://d3gcli72yxqn2z.cloudfront.net/downloads/connect/latest/bin/ibm-aspera-connect_4.2.12.780_win32_AMD64.msi"
-    download_path: "/home/eng/apps/winOS/ibm_aspera/win_ibm_aspera.msi"
+    file_contents: "{{ lookup('file', '/home/eng/border_control/win_finaldraft_check.txt') }}"
+    download_url: "https://www.finaldraft.com/downloads/finaldraft12011Win.zip"
+    download_path: "/home/eng/apps/winOS/.tempDir/finaldraft12.zip"
 
   tasks:
-    - name: Download the .msi file
+    - name: Download the .zip file
       get_url:
         url: "{{ download_url }}"
         dest: "{{ download_path }}"
@@ -45,14 +45,21 @@
   tasks:
 
   #Install MSI/.exe software 
-    - name: Copy .msi Installer
+    - name: Copy .zip
       ansible.builtin.copy:
-        src: "/home/eng/apps/winOS/ibm_aspera/win_ibm_aspera.msi"
-        dest: C:\ansible\IBM_Aspera.msi
+        src: "/home/eng/apps/winOS/.tempDir/finaldraft12.zip"
+        dest: C:\ansible\finaldraft12.zip
+
+    - name: Unzip file
+      win_unzip: 
+        src: C:\ansible\finaldraft12.zip
+        dest: C:\ansible\finaldraft12
+        creates: C:\ansible\finaldraft12
+        delete_archive: yes
 
     - name: Check IBM Aspera is install through win_package
       win_package:
-        path: C:\ansible\IBM_Aspera.msi
+        path: C:\ansible\finaldraft12\FinalDraftSetup.msi
         state: present
     
     - name: Pause to allow installation to complete
@@ -61,11 +68,11 @@
 
     - name: Check if the file exists
       win_stat:
-        path: C:\ansible\IBM_Aspera.msi
+        path: C:\ansible\finaldraft12.zip
       register: file_status
 
     - debug:
         var: file_status
 
     - name: Delete .msi file from directory
-      win_shell: Remove-Item -Path "C:\\ansible\\IBM_Aspera.msi" -Force
+      win_shell: Remove-Item -Path "C:\ansible\finaldraft12" -Force

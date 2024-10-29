@@ -5,7 +5,7 @@
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/tmvhost_check.txt') }}"
     download_url: "https://download.teamviewer.com/download/TeamViewerHost.dmg"
-    download_path: "/home/eng/apps/TeamViewerHost.dmg"
+    download_path: "/home/eng/apps/macOS/.tempDir/TeamViewerHost.dmg"
 
   tasks:
     - name: Download the .dmg file
@@ -48,7 +48,7 @@
   tasks:
     - name: Transfer the .dmg file to target hosts
       ansible.builtin.copy:
-        src: "/home/eng/apps/TeamViewerHost.dmg"
+        src: "/home/eng/apps/macOS/.tempDir/TeamViewerHost.dmg"
         dest: "/tmp/TeamViewerHost.dmg"
   
     - name: Mount DMG

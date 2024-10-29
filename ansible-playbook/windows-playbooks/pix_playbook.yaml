@@ -1,9 +1,9 @@
 ---
-- name: Check .msi installer checksum and scan for virus
+- name: PIX installer for winOS
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    source: "/home/eng/apps/winOS/eset/ESET_5_2_0_43_Blink.msi"
+    source: "/home/eng/apps/winOS/pix/PIX-3.5.6.exe"
 
   tasks:
     - name: Install ClamAV
@@ -22,37 +22,26 @@
         msg: "Virus detected in the downloaded file!"
       when: "'FOUND' in clamav_result.stdout"
 
-- name: Install IBM Aspera Connect
+- name: Install PIX
   hosts: "{{ target }}"
   vars_files:
     - "{{ lookup('env', 'ANSIBLE_ENV') }}"
   vars:
-    source: "/home/eng/apps/winOS/eset/ESET_5_2_0_43_Blink.msi"
-    endpoint: C:\ansible\ESET_5_2_0_43.msi
+    source: "/home/eng/apps/winOS/pix/PIX-3.5.6.exe"
+    endpoint: C:\Users\Public\Desktop\pix.exe
   tasks:
 
   #Install MSI/.exe software 
-    - name: Copy .msi Installer
+    - name: Copy executable
       ansible.builtin.copy:
         src: "{{ source }}"
         dest: "{{ endpoint }}"
 
-    - name: Check ESET Endpoint Encryption is install through win_package
+    - name: Check PIX is install through win_package
       win_package:
-        path: C:\ansible\ESET_5_2_0_43.msi
+        path: C:\ansible\pix.exe
         state: present
     
     - name: Pause to allow installation to complete
       pause:
         seconds: 10
-
-    - name: Check if the file exists
-      win_stat:
-        path: C:\ansible\ESET_5_2_0_43.msi
-      register: file_status
-
-    - debug:
-        var: file_status
-
-    - name: Delete .msi file from directory
-      win_shell: Remove-Item -Path "C:\ansible\ESET_5_2_0_43.msi" -Force

@@ -5,7 +5,7 @@
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/whatsapp_check.txt') }}"
     download_url: "https://web.whatsapp.com/desktop/mac_native/release/?configuration=Release"
-    download_path: "/home/eng/apps/whatsapp.dmg"
+    download_path: "/home/eng/apps/macOS/.tempDir/whatsapp.dmg"
 
   tasks:
     - name: Download the .dmg file
@@ -43,7 +43,7 @@
   tasks:
     - name: Transfer the .dmg file to target hosts
       ansible.builtin.copy:
-        src: "/home/eng/apps/whatsapp.dmg"
+        src: "/home/eng/apps/macOS/.tempDir/whatsapp.dmg"
         dest: "/tmp/whatsapp.dmg"
 
     - name: Mount DMG

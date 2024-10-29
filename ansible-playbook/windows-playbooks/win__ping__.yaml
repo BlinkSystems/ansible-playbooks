@@ -1,5 +1,5 @@
 ---
-- name: Install default apps 
+- name: Ping "{{ target }}"
   hosts: "{{ target }}"
   gather_facts: false
   vars_files:

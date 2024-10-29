@@ -4,7 +4,7 @@
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/gdrive_check.txt') }}"
     download_url: "https://dl.google.com/drive-file-stream/GoogleDrive.dmg"
-    download_path: "/home/eng/apps/GoogleDrive.dmg"
+    download_path: "/home/eng/apps/macOS/.tempDir/GoogleDrive.dmg"
     download_rmt_path: "/tmp/GoogleDrive.dmg"
 
   tasks:
@@ -43,7 +43,7 @@
   tasks:
     - name: Transfer the .dmg file to target hosts
       ansible.builtin.copy:
-        src: "/home/eng/apps/GoogleDrive.dmg"
+        src: "/home/eng/apps/macOS/.tempDir/GoogleDrive.dmg"
         dest: "/tmp/GoogleDrive.dmg"
     
     - name: Mount DMG

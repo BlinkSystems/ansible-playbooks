@@ -1,14 +1,14 @@
 ---
-- name: Check .dmg installer checksum and scan for virus
+- name: Shotgrid RV for winOS
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    file_contents: "{{ lookup('file', '/home/eng/border_control/vlc_check.txt') }}"
-    download_url: "https://get.videolan.org/vlc/3.0.20/macosx/vlc-3.0.20-universal.dmg"
-    download_path: "/home/eng/apps/macOS/.tempDir/vlc.dmg"
-  
+    file_contents: "{{ lookup('file', '/home/eng/border_control/win_rv_check.txt') }}"
+    download_url: "https://sg-software.ems.autodesk.com/deploy/rv/Current_Release/Windows-release.msi"
+    download_path: "/home/eng/apps/winOS/.tempDir/rv.msi"
+
   tasks:
-    - name: Download the .dmg file
+    - name: Download the .msi file
       get_url:
         url: "{{ download_url }}"
         dest: "{{ download_path }}"
@@ -21,7 +21,7 @@
       assert:
         that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
         msg: "Checksums do not match. File may be corrupted."
-
+    
     - name: Install ClamAV
       become: yes
       package:
@@ -38,29 +38,32 @@
         msg: "Virus detected in the downloaded file!"
       when: "'FOUND' in clamav_result.stdout"
 
-- name: Install VLC
+- name: Install Shotgrid RV
   hosts: "{{ target }}"
+  vars_files:
+    - "{{ lookup('env', 'ANSIBLE_ENV') }}"
   tasks:
-    - name: Transfer the .dmg file to target hosts
+    - name: Copy .msi
       ansible.builtin.copy:
-        src: "/home/eng/apps/macOS/.tempDir/vlc.dmg"
-        dest: "/tmp/vlc.dmg"
-  
-    - name: Mount DMG
-      command: hdiutil attach -nobrowse -mountpoint "/Volumes/VLC" "/tmp/vlc.dmg"
-      register: mounted_volume
+        src: "/home/eng/apps/winOS/.tempDir/rv.msi"
+        dest: C:\ansible\rv.msi
 
-    - name: Copy App to Applications
-      command: cp -R "/Volumes/VLC/VLC.app" /Applications/
-
-    - name: Unmount DMG
-      command: hdiutil detach "/Volumes/VLC"
-
+    - name: Check RV is install through win_package
+      win_package:
+        path: C:\ansible\rv.msi
+        state: present
+    
     - name: Pause to allow installation to complete
       pause:
         seconds: 10
 
-    - name: Delete .dmg specified
-      file:
-        path: "/tmp/VLC.dmg"
-        state: absent
+    - name: Check if the file exists
+      win_stat:
+        path: C:\ansible\rv.msi
+      register: file_status
+
+    - debug:
+        var: file_status
+
+    - name: Delete .msi file from directory
+      win_shell: Remove-Item -Path "C:\\ansible\\rv.msi" -Force

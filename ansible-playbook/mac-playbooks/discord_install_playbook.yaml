@@ -5,7 +5,7 @@
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/discord_check.txt') }}"
     download_url: "https://discord.com/api/download?platform=osx"
-    download_path: "/home/eng/apps/Discord.dmg"
+    download_path: "/home/eng/apps/macOS/.tempDir/Discord.dmg"
 
   
   tasks:
@@ -54,7 +54,7 @@
 
     - name: Download the .dmg file
       copy:
-        src: /home/eng/apps/Discord.dmg
+        src: /home/eng/apps/macOS/.tempDir/Discord.dmg
         dest: "/tmp/Discord.dmg"
 
     - name: Mount DMG

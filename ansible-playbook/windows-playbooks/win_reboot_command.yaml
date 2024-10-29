@@ -1,5 +1,5 @@
 ---
-- name: Reboot windows device
+- name: Reboot winOS device
   hosts: "{{ target }}"
   vars_files:
   - "{{ lookup('env', 'ANSIBLE_ENV') }}"

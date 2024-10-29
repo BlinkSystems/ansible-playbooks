@@ -1,11 +1,11 @@
 ---
-- name: Check .dmg installer checksum and scan for virus
+- name: Spotify Installer for macOS devices
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/spotify_check.txt') }}"
     download_url: "http://download.spotify.com/Spotify.dmg"
-    download_path: "/home/eng/apps/Spotify.dmg"
+    download_path: "/home/eng/apps/macOS/.tempDir/Spotify.dmg"
 
   tasks:
     - name: Download the .dmg file
@@ -48,7 +48,7 @@
   tasks:
     - name: Transfer the .dmg file to target hosts
       ansible.builtin.copy:
-        src: "/home/eng/apps/Spotify.dmg"
+        src: "/home/eng/apps/macOS/.tempDir/Spotify.dmg"
         dest: "/tmp/Spotify.dmg"
 
 
