@@ -4,6 +4,7 @@
   vars_files:
     - "{{ lookup('env', 'ANSIBLE_ENV') }}"
   gather_facts:
+- import_playbook: win_bitdefender_playbook.yaml
 - import_playbook: win_teamhost_playbook.yaml
 - import_playbook: win_chocolatey_acc.yaml
 - import_playbook: win_ibm_aspera_playbook.yaml

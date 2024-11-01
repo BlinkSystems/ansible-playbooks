@@ -3,7 +3,7 @@
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    # file_contents: "{{ lookup('file', '/home/eng/border_control/win_tmhost_check.txt') }}"
+    file_contents: "{{ lookup('file', '/home/eng/border_control/win_tmhost_check.txt') }}"
     source: "/home/eng/apps/winOS/teamviewer_host/TeamViewer_MSI64/Host/TeamViewer_Host.msi"
 
 - name: Install TeamViewer Host
@@ -15,7 +15,7 @@
       set_fact:
         key: "{{ (lookup('file', '/home/eng/json/.tokens.json') | from_json).team_token }}"
 
-  #Install MSI/.exe software 
+   #Install MSI/.exe software 
     - name: Copy .msi Installer
       ansible.builtin.copy:
         src: "/home/eng/apps/winOS/teamviewer_host/TeamViewer_MSI64/Host/TeamViewer_Host.msi"

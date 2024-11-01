@@ -16,7 +16,7 @@
 - import_playbook: ibm_aspera_connect_install_playbook.yaml
 - import_playbook: vlc_install_playbook.yaml
 - import_playbook: sonos_install_playbook.yaml
-# - import_playbook: rv_player_install_playbooks.yaml
+- import_playbook: rv_player_install_playbook.yaml
 - import_playbook: spotify_install_playbook.yaml
 - import_playbook: whatsapp_install_playbook.yaml
 - import_playbook: adobe_cc_install_playbook.yaml

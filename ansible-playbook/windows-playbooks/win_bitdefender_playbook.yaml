@@ -1,14 +1,13 @@
 ---
-- name: Final Draft Installer for winOS devices
+- name: BitDefender for winOS
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    file_contents: "{{ lookup('file', '/home/eng/border_control/win_final_draft_check.txt') }}"
-    download_url: "https://www.finaldraft.com/downloads/finaldraft12011Win.zip"
-    download_path: "/home/eng/apps/winOS/.tempDir/finaldraft12.zip"
-
+    file_contents: "{{ lookup('file', '/home/eng/border_control/win_bit_defender_check.txt') }}"
+    download_url: "{{ (lookup('file', '/home/eng/json/urls.json') | from_json).bit_defender }}"
+    download_path: "/home/eng/apps/winOS/.tempDir/bitdefender.exe"
   tasks:
-    - name: Download the .zip file
+    - name: Download the .exe file
       get_url:
         url: "{{ download_url }}"
         dest: "{{ download_path }}"
@@ -16,7 +15,7 @@
     - name: Calculate the checksum of the downloaded file
       command: "shasum -a 256 '{{ download_path }}'"
       register: calculated_checksum
-        
+
     - name: Compare checksum values
       assert:
         that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
@@ -38,41 +37,36 @@
         msg: "Virus detected in the downloaded file!"
       when: "'FOUND' in clamav_result.stdout"
 
-- name: Install IBM Aspera Connect
+- name: Install BitDefender
   hosts: "{{ target }}"
   vars_files:
     - "{{ lookup('env', 'ANSIBLE_ENV') }}"
   tasks:
 
   #Install MSI/.exe software 
-    - name: Copy .zip
+    - name: Download .exe Installer
       ansible.builtin.copy:
-        src: "/home/eng/apps/winOS/.tempDir/finaldraft12.zip"
-        dest: C:\ansible\finaldraft12.zip
+        src: /home/eng/apps/winOS/bitdefender/bitDefender.py
+        dest: C:\ansible\bitDefender.py
 
-    - name: Unzip file
-      win_unzip: 
-        src: C:\ansible\finaldraft12.zip
-        dest: C:\ansible\finaldraft12
-        creates: C:\ansible\finaldraft12
-        delete_archive: yes
+    - name: Python script install for BitDefender
+      win_shell: 'python C:\ansible\bitDefender.py'
+      register: result
 
-    - name: Check IBM Aspera is install through win_package
-      win_package:
-        path: C:\ansible\finaldraft12\FinalDraftSetup.msi
-        state: present
-    
+    - debug:
+        msg: "{{ result }}"
+
     - name: Pause to allow installation to complete
       pause:
         seconds: 10
 
     - name: Check if the file exists
       win_stat:
-        path: C:\ansible\finaldraft12.zip
+        path: C:\ansible\bitdefender.exe
       register: file_status
 
     - debug:
         var: file_status
 
-    - name: Delete .msi file from directory
-      win_shell: Remove-Item -Path "C:\ansible\finaldraft12" -Force
+    - name: Delete .py file from directory
+      win_shell: Remove-Item -Path "C:\\ansible\\bitDefender.py" -Force
