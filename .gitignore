@@ -6,6 +6,7 @@ venv
 **/._.DS_Store
 test.py
 pyNet
-*/.non_working
+**/.non_working
 **/wip
 **/.oldScripts
+**/master_soho_playbook.yaml
