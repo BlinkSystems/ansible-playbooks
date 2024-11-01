@@ -12,3 +12,6 @@ pyNet
 **/master_sh_playbook.yaml
 **/win_master_acc_playbook.yaml
 **/win_master_sr3_playbook.yaml
+**/win_chocolatey_acc_playbook.yaml
+**/win__ping__.yaml
+**/win_reboot_command.yaml
