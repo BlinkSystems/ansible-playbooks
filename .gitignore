@@ -9,4 +9,6 @@ pyNet
 **/.non_working
 **/wip
 **/.oldScripts
-**/master_soho_playbook.yaml
+**/master_sh_playbook.yaml
+**/win_master_acc_playbook.yaml
+**/win_master_sr3_playbook.yaml
