@@ -62,7 +62,7 @@
 
     - name: Check if the file exists
       win_stat:
-        path: C:\ansible\bitdefender.exe
+        path: C:\ansible\bitDefender.py
       register: file_status
 
     - debug:

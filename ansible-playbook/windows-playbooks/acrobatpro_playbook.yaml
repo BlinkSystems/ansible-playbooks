@@ -67,4 +67,4 @@
       win_shell: Remove-Item -Path "C:\ansible\AcrobatCustomMSI" -Recurse
 
     - name: Delete file
-      win_shell: Remove-Item -Path "C:\ansible\msiexec.log" -Path
+      win_shell: Remove-Item -Path "C:\ansible\msiexec.log"

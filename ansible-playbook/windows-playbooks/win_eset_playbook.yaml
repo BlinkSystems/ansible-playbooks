@@ -3,7 +3,7 @@
   hosts: localhost  # Run tasks on the Ansible control node
   gather_facts: false
   vars:
-    source: "/home/eng/apps/winOS/eset/ESET_5_2_0_43_Blink.msi"
+    source: "/home/eng/apps/winOS/eset/ESET_5_1_1_14_Blink.msi"
 
   tasks:
     - name: Install ClamAV
@@ -27,8 +27,8 @@
   vars_files:
     - "{{ lookup('env', 'ANSIBLE_ENV') }}"
   vars:
-    source: "/home/eng/apps/winOS/eset/ESET_5_2_0_43_Blink.msi"
-    endpoint: C:\ansible\ESET_5_2_0_43.msi
+    source: "/home/eng/apps/winOS/eset/ESET_5_1_1_14_Blink.msi"
+    endpoint: C:\ansible\ESET_5_1_1_14_Blink.msi
   tasks:
 
   #Install MSI/.exe software 
@@ -39,7 +39,7 @@
 
     - name: Check ESET Endpoint Encryption is install through win_package
       win_package:
-        path: C:\ansible\ESET_5_2_0_43.msi
+        path: C:\ansible\ESET_5_1_1_14_Blink.msi
         state: present
     
     - name: Pause to allow installation to complete
@@ -48,11 +48,11 @@
 
     - name: Check if the file exists
       win_stat:
-        path: C:\ansible\ESET_5_2_0_43.msi
+        path: C:\ansible\ESET_5_1_1_14_Blink.msi
       register: file_status
 
     - debug:
         var: file_status
 
     - name: Delete .msi file from directory
-      win_shell: Remove-Item -Path "C:\ansible\ESET_5_2_0_43.msi" -Force
+      win_shell: Remove-Item -Path "C:\ansible\ESET_5_1_1_14_Blink.msi" -Force
