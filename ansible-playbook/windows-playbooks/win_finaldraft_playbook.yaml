@@ -74,5 +74,5 @@
     - debug:
         var: file_status
 
-    - name: Delete .msi file from directory
-      win_shell: Remove-Item -Path "C:\ansible\finaldraft12" -Force
+    - name: Delete directory
+      win_shell: Remove-Item -Path "C:\ansible\finaldraft12" -Recurse

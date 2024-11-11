@@ -39,7 +39,7 @@
 
     - name: Check PIX is install through win_package
       win_package:
-        path: C:\ansible\pix.exe
+        path: C:\Users\Public\Desktop\pix.exe
         state: present
     
     - name: Pause to allow installation to complete

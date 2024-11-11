@@ -65,8 +65,8 @@
         path: C:\ansible\bitDefender.py
       register: file_status
 
-    - debug:
-        var: file_status
+    # - debug:
+    #     var: file_status
 
-    - name: Delete .py file from directory
-      win_shell: Remove-Item -Path "C:\\ansible\\bitDefender.py" -Force
+    # - name: Delete .py file from directory
+    #   win_shell: Remove-Item -Path "C:\\ansible\\bitDefender.py" -Force

@@ -22,7 +22,7 @@
         msg: "Virus detected in the downloaded file!"
       when: "'FOUND' in clamav_result.stdout"
 
-- name: Install IBM Aspera Connect
+- name: Install ESET Endpoint Encryption
   hosts: "{{ target }}"
   vars_files:
     - "{{ lookup('env', 'ANSIBLE_ENV') }}"
