@@ -53,6 +53,7 @@
     - name: Check IBM Aspera is install through win_package
       win_package:
         path: C:\ansible\IBM_Aspera.msi
+        arguments: ALLUSERS=1
         state: present
     
     - name: Pause to allow installation to complete

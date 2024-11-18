@@ -15,6 +15,7 @@
     win_chocolatey:
       name: forticlientvpn
       state: present
+      params: "--install-arguments='/ALLUSERS=1'"
    
   - name: install zoom
     win_chocolatey:
@@ -66,6 +67,7 @@
     win_chocolatey:
       name: adobereader
       state: present
+      params: "--install-arguments='/ALLUSERS=1'"
    
   - name: install office365business
     win_chocolatey:

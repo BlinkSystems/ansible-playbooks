@@ -1,6 +1,6 @@
 ---
 - name: Spotify Installer for macOS devices
-  hosts: localhost  # Run tasks on the Ansible control node
+  hosts: localhost # Run tasks on the Ansible control node
   gather_facts: false
   vars:
     file_contents: "{{ lookup('file', '/home/eng/border_control/spotify_check.txt') }}"
@@ -8,82 +8,81 @@
     download_path: "/home/eng/apps/macOS/.tempDir/Spotify.dmg"
 
   tasks:
-    - name: Download the .dmg file
-      get_url:
-        url: "{{ download_url }}"
-        dest: "{{ download_path }}"
+  - name: Download the .dmg file
+    get_url:
+      url: "{{ download_url }}"
+      dest: "{{ download_path }}"
 
-    - name: Calculate the checksum of the downloaded file
-      command: "shasum -a 256 '{{ download_path }}'"
-      register: calculated_checksum
-    
-    - name: Compare checksum values
-      assert:
-        that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
-        msg: "Checksums do not match. File may be corrupted."
+  - name: Calculate the checksum of the downloaded file
+    command: "shasum -a 256 '{{ download_path }}'"
+    register: calculated_checksum
 
-    - name: Install ClamAV
-      become: yes
-      package:
-        name: clamav
-        state: present
+  - name: Compare checksum values
+    assert:
+      that: "{{ calculated_checksum.stdout.split()[0] == file_contents }}"
+      msg: "Checksums do not match. File may be corrupted."
 
-    - name: Scan downloaded file with ClamAV
-      command: clamscan --stdout "{{ download_path }}"
-      register: clamav_result
-      changed_when: false
+  - name: Install ClamAV
+    become: yes
+    package:
+      name: clamav
+      state: present
 
-    - name: Fail if virus found
-      fail:
-        msg: "Virus detected in the downloaded file!"
-      when: "'FOUND' in clamav_result.stdout"
+  - name: Scan downloaded file with ClamAV
+    command: clamscan --stdout "{{ download_path }}"
+    register: clamav_result
+    changed_when: false
+
+  - name: Fail if virus found
+    fail:
+      msg: "Virus detected in the downloaded file!"
+    when: "'FOUND' in clamav_result.stdout"
 
 - name: Install Spotify
   hosts: "{{ target }}"
   gather_facts: false
   vars:
-      app_name: "Spotify.app"
-      dmg_name: "/tmp/Spotify.dmg"
-      install_dir: "/Applications"
+    app_name: "Spotify.app"
+    dmg_name: "/tmp/Spotify.dmg"
+    install_dir: "/Applications"
   tasks:
-    - name: Transfer the .dmg file to target hosts
-      ansible.builtin.copy:
-        src: "/home/eng/apps/macOS/.tempDir/Spotify.dmg"
-        dest: "/tmp/Spotify.dmg"
+  - name: Transfer the .dmg file to target hosts
+    ansible.builtin.copy:
+      src: "/home/eng/apps/macOS/.tempDir/Spotify.dmg"
+      dest: "/tmp/Spotify.dmg"
 
+  - name: Check if volume is already mounted
+    shell: hdiutil info | grep "/Volumes/Spotify"
+    ignore_errors: true
+    register: is_volume_mounted
 
-    - name: Check if volume is already mounted
-      shell: hdiutil info | grep "/Volumes/Spotify"
-      ignore_errors: true
-      register: is_volume_mounted
+  - name: Mount DMG if not already mounted
+    command: hdiutil attach -nobrowse -mountpoint "/Volumes/Spotify" "/tmp/Spotify.dmg"
+    when: is_volume_mounted.rc != 0
 
-    - name: Mount DMG if not already mounted
-      command: hdiutil attach -nobrowse -mountpoint "/Volumes/Spotify" "/tmp/Spotify.dmg"
-      when: is_volume_mounted.rc != 0
+  - name: Mount DMG
+    command: hdiutil attach -nobrowse -mountpoint "/Volumes/Spotify" "/tmp/Spotify.dmg"
+    register: mounted_volume
 
-    - name: Mount DMG
-      command: hdiutil attach -nobrowse -mountpoint "/Volumes/Spotify" "/tmp/Spotify.dmg"
-      register: mounted_volume
+  - name: Debug path existence
+    debug:
+      msg: "Path exists: {{ '/Volumes/Spotify' | realpath }}"
 
-    - name: Debug path existence
-      debug:
-        msg: "Path exists: {{ '/Volumes/Spotify' | realpath }}"
+  - name: Copy App to Applications
+    command: cp -R "/Volumes/Spotify/Spotify.app" /Applications/
 
-    - name: Copy App to Applications
-      command: cp -R "/Volumes/Spotify/Spotify.app" /Applications/
+  - name: Pause to allow installation to complete
+    pause:
+      seconds: 3
 
-    - name: Pause to allow installation to complete
-      pause:
-        seconds: 3
+  - name: Unmount DMG
+    command: hdiutil detach "/Volumes/Spotify"
 
-    - name: Unmount DMG
-      command: hdiutil detach "/Volumes/Spotify"
+  - name: Pause to allow installation to complete
+    pause:
+      seconds: 10
 
-    - name: Pause to allow installation to complete
-      pause:
-        seconds: 10
-
-    - name: Delete .dmg specified
-      file:
-        path: "/tmp/Spotify.dmg"
-        state: absent
+  - name: Delete .dmg specified
+    file:
+      path: "/tmp/Spotify.dmg"
+      state: absent

@@ -48,7 +48,8 @@
     - name: Install an MSI file
       ansible.windows.win_package:
         path: C:\ansible\AcrobatCustomMSI\AcroPro.msi
-        arguments: "/qn /norestart"
+        arguments: "/qn /norestart ALLUSERS=1"
+      
         log_path: "C:\\ansible\\msiexec.log"
  
     - name: Pause to allow installation to complete
