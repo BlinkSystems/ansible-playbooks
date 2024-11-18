@@ -4,7 +4,7 @@ __pycache__
 ansible-playbook/.DS_Store
 venv
 
-
+**/mac-playbooks/wip
 **._google_drive_install_playbook.yaml
 **/._master_playbook.yaml
 **/.non_working
